@@ -1,0 +1,28 @@
+# dependencies / build
+node_modules/
+dist/
+.vite/
+
+# secrets — NEVER commit credentials
+.env
+.env.*
+!.env.example
+.dev.vars
+*.local
+.wrangler/
+
+# logs / os
+*.log
+.DS_Store
+npm-debug.log*
+
+# local corpus-build scratch & manifest backups
+audio_corpus_builder/
+public/manifest.json.bak.*
+
+# audio blobs are NOT stored in git — they live in Cloudflare Pages blob storage
+# (served at /sentence-clips/*.mp3 from the deploy) and are indexed by
+# public/manifest.json. Never commit the clips: they bloat the repo and blow past
+# GitHub's HTTP push limit. The manifest.json index IS tracked.
+public/sentence-clips/
+public/accents/

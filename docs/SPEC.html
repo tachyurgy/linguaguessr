@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LinguaGuessr — Product & Build Spec</title>
+<style>
+  :root{
+    --bg:#0e1014; --panel:#161a22; --panel2:#1c2230; --ink:#e8ecf2; --muted:#9aa6b8;
+    --accent:#6ee7b7; --accent2:#7dd3fc; --warn:#fbbf24; --bad:#fb7185; --line:#2a3344;
+    --good:#34d399;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:linear-gradient(180deg,#0b0d11,#0e1014 240px);color:var(--ink);
+    font:16px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,Helvetica,Arial,sans-serif;}
+  .wrap{max-width:980px;margin:0 auto;padding:0 22px 120px}
+  header.hero{padding:64px 22px 40px;max-width:980px;margin:0 auto}
+  h1{font-size:44px;line-height:1.05;margin:0 0 8px;letter-spacing:-.02em}
+  h1 .ph{color:var(--muted);font-size:18px;font-weight:500;display:block;margin-top:10px;letter-spacing:0}
+  .tag{display:inline-block;background:var(--panel2);border:1px solid var(--line);color:var(--accent);
+    padding:4px 11px;border-radius:999px;font-size:13px;margin:0 6px 6px 0}
+  h2{font-size:27px;margin:54px 0 8px;letter-spacing:-.01em;border-bottom:1px solid var(--line);padding-bottom:8px}
+  h3{font-size:19px;margin:30px 0 6px;color:var(--accent2)}
+  h4{font-size:15px;margin:18px 0 4px;color:var(--ink);text-transform:uppercase;letter-spacing:.06em;font-weight:600}
+  p{margin:10px 0}
+  a{color:var(--accent2);text-decoration:none;border-bottom:1px dotted #3a4a63}
+  a:hover{border-bottom-style:solid}
+  code{background:#0a0c10;border:1px solid var(--line);border-radius:5px;padding:1px 6px;font-size:13px;
+    font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace;color:var(--accent)}
+  pre{background:#0a0c10;border:1px solid var(--line);border-radius:10px;padding:16px 18px;overflow:auto;
+    font:13px/1.55 "SF Mono",ui-monospace,Menlo,Consolas,monospace;color:#cdd6e4}
+  pre .k{color:#7dd3fc}.pre .s{color:#6ee7b7}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px 22px;margin:16px 0}
+  .grid{display:grid;gap:14px}
+  .g2{grid-template-columns:1fr 1fr}.g3{grid-template-columns:1fr 1fr 1fr}
+  @media(max-width:760px){.g2,.g3{grid-template-columns:1fr}}
+  .muted{color:var(--muted)}
+  ul,ol{margin:8px 0 8px 4px;padding-left:22px}
+  li{margin:5px 0}
+  table{width:100%;border-collapse:collapse;margin:14px 0;font-size:14px}
+  th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{color:var(--accent2);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.05em}
+  tr:hover td{background:#12161e}
+  .pill{font-size:11px;padding:2px 8px;border-radius:999px;font-weight:600;white-space:nowrap}
+  .p-good{background:rgba(52,211,153,.15);color:var(--good)}
+  .p-warn{background:rgba(251,191,36,.15);color:var(--warn)}
+  .p-bad{background:rgba(251,113,133,.15);color:var(--bad)}
+  .star{color:var(--accent)}
+  .callout{border-left:3px solid var(--accent);background:var(--panel2);padding:12px 18px;border-radius:0 10px 10px 0;margin:16px 0}
+  .callout.warn{border-color:var(--warn)}
+  .callout.bad{border-color:var(--bad)}
+  nav.toc{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px 24px;margin:24px 0}
+  nav.toc a{display:inline-block;margin:3px 14px 3px 0;border:none;color:var(--muted)}
+  nav.toc a:hover{color:var(--accent)}
+  .kbd{font-size:12px;border:1px solid var(--line);border-bottom-width:2px;border-radius:6px;padding:1px 7px;background:#0a0c10}
+  .big{font-size:34px;font-weight:700;color:var(--accent);line-height:1}
+  .metric{text-align:center;padding:18px}
+  .metric .lbl{color:var(--muted);font-size:13px;margin-top:6px}
+  .rec{outline:2px solid var(--accent);outline-offset:-2px}
+  hr{border:none;border-top:1px solid var(--line);margin:30px 0}
+  .footer{color:var(--muted);font-size:13px;margin-top:60px;text-align:center}
+  .step{counter-increment:step;position:relative;padding-left:42px;margin:14px 0}
+  .step:before{content:counter(step);position:absolute;left:0;top:-2px;width:28px;height:28px;border-radius:50%;
+    background:var(--accent);color:#06281f;font-weight:700;display:grid;place-items:center;font-size:14px}
+  ol.steps{counter-reset:step;list-style:none;padding-left:0}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <h1>LinguaGuessr
+    <span class="ph">“GeoGuessr for the ear.” Hear a fragment of human speech — guess where on Earth it's spoken.</span>
+  </h1>
+  <div style="margin-top:18px">
+    <span class="tag">Product Spec</span>
+    <span class="tag">Dataset Plan</span>
+    <span class="tag">Cloudflare Pages + R2</span>
+    <span class="tag">Naming &amp; Marketing</span>
+    <span class="tag">v1 — May 2026</span>
+  </div>
+</header>
+
+<div class="wrap">
+
+<nav class="toc">
+  <strong>Contents</strong><br>
+  <a href="#concept">1. The Concept</a>
+  <a href="#datasets">2. Datasets (the heart)</a>
+  <a href="#recommendation">3. Recommended Data Stack</a>
+  <a href="#curation">4. Curation Pipeline</a>
+  <a href="#architecture">5. Architecture</a>
+  <a href="#schema">6. Data Schema</a>
+  <a href="#gameplay">7. Game Design &amp; Modes</a>
+  <a href="#scoring">8. Scoring</a>
+  <a href="#names">9. Name Brainstorm</a>
+  <a href="#marketing">10. Marketing &amp; Growth</a>
+  <a href="#costs">11. Costs</a>
+  <a href="#legal">12. Legal &amp; Risk</a>
+  <a href="#roadmap">13. Build Roadmap</a>
+</nav>
+
+<!-- ============================================================ -->
+<h2 id="concept">1. The Concept</h2>
+<p>GeoGuessr drops you into a Street View panorama and asks <em>“where in the world are you?”</em>
+LinguaGuessr does the same with <strong>sound</strong>: you hear a short clip of someone speaking — a
+sentence, a phrase, a few words — and you have to place it on a map (or pick a language / region).
+No captions, no text, no flags. Just the human voice.</p>
+
+<p>The genius of the format is that it scales across skill levels automatically:</p>
+<div class="grid g3">
+  <div class="panel"><h4>Casual player</h4><p class="muted">“That's… definitely not European. Sounds East Asian. I'll guess Korea.” Multiple-choice and region modes keep them in the game.</p></div>
+  <div class="panel"><h4>Language nerd</h4><p class="muted">Distinguishes Portuguese from Spanish, Dutch from German, Mandarin from Cantonese. Map mode rewards precision.</p></div>
+  <div class="panel"><h4>Linguist / hard mode</h4><p class="muted">Calls regional accents — Rioplatense vs. Castilian Spanish, Bavarian vs. Hochdeutsch. Earns the legend badge.</p></div>
+</div>
+
+<div class="callout">
+  <strong>Core loop:</strong> Hear a clip → optionally replay (costs points) → guess on a map or from choices →
+  see the answer with a “here's what that was” reveal → next round. Five rounds a game, GeoGuessr-style cumulative score, with a daily shared challenge for the viral hook.
+</div>
+
+<h4>The two design pillars that matter most</h4>
+<ol>
+<li><strong>You get the most points for guessing off a single listen.</strong> A prominent <span class="kbd">↻ Replay</span> button is always available, but each replay shaves points. This rewards the “ear,” which is the whole fantasy.</li>
+<li><strong>Every round is random and fresh.</strong> Clips are drawn at random from a large warehoused library so the game never feels memorized.</li>
+</ol>
+
+<!-- ============================================================ -->
+<h2 id="datasets">2. Datasets — the Heart of the Whole Thing</h2>
+<p>You were right: <strong>the dataset is the heaviest and most important piece.</strong> Everything else is
+a thin client over a well-curated audio library. The good news: there are several large, openly-licensed
+spoken-language corpora that are <em>purpose-built</em> for exactly this (language identification), and the
+licensing is friendly enough to warehouse and redistribute clips. Here's the full landscape, ranked by fit.</p>
+
+<table>
+<thead><tr><th>Dataset</th><th>Coverage</th><th>License</th><th>Format / fit</th><th>Verdict</th></tr></thead>
+<tbody>
+<tr class="rec">
+  <td><strong>Mozilla Common Voice</strong> <span class="star">★ primary</span></td>
+  <td>250+ languages collected, ~130 with usable data; per-clip <em>accent</em>, age, gender metadata for many</td>
+  <td><span class="pill p-good">CC0</span> public domain</td>
+  <td>Short MP3 clips of read sentences; clean, single-speaker, web-ready. Downloadable per-language.</td>
+  <td>Best all-rounder. CC0 means zero attribution/redistribution friction — host clips freely.</td>
+</tr>
+<tr class="rec">
+  <td><strong>VoxLingua107</strong> <span class="star">★ language-ID</span></td>
+  <td>107 languages, 6,628 hrs; built specifically for spoken <em>language recognition</em></td>
+  <td><span class="pill p-warn">CC BY 4.0</span> (copyright stays with original video owners)</td>
+  <td>Short segments auto-extracted from YouTube — natural, “in the wild” speech (background noise, real prosody).</td>
+  <td>Great for authenticity &amp; breadth. Attribution required; YouTube-sourced so vet clips. Use as flavor/hard-mode layer.</td>
+</tr>
+<tr>
+  <td><strong>VoxPopuli</strong></td>
+  <td>23 EU languages, 100K hrs, from European Parliament 2009–2020</td>
+  <td><span class="pill p-good">CC0</span></td>
+  <td>Spontaneous political speech. Excellent for the <em>Europe-focused</em> core you described.</td>
+  <td>Perfect for a “Europe” pack and Slavic/Romance/Germanic family rounds. CC0.</td>
+</tr>
+<tr>
+  <td><strong>Google FLEURS</strong></td>
+  <td>102 languages, grouped into geographic regions (incl. Western/Eastern Europe, E/SE Asia, etc.)</td>
+  <td><span class="pill p-warn">CC BY 4.0</span></td>
+  <td>Read parallel sentences, ~10 hrs/lang. Already region-tagged — maps cleanly to “easy region mode.”</td>
+  <td>The region groupings are a gift for difficulty tiers. Attribution required.</td>
+</tr>
+<tr>
+  <td><strong>Lingua Libre</strong> (Wikimedia)</td>
+  <td>310+ languages, 1.4M+ recordings (words &amp; short phrases)</td>
+  <td><span class="pill p-good">CC0 / CC BY / CC BY-SA</span> (per-recording)</td>
+  <td>Word/phrase-level. Good for an ultra-hard “name the language from one word” mode &amp; rare languages.</td>
+  <td>Filter to CC0/CC-BY for clean reuse. Great long tail &amp; rare-language coverage.</td>
+</tr>
+<tr>
+  <td><strong>Speech Accent Archive</strong> (GMU)</td>
+  <td>Hundreds of speakers, all reading the <em>same</em> English paragraph, tagged by native-language background</td>
+  <td><span class="pill p-warn">Creative Commons</span> (verify exact variant before bulk reuse)</td>
+  <td>The same script in every accent — ideal for an <em>“accent mode”</em>: guess the speaker's first language.</td>
+  <td>Best-in-class for the accent twist. Confirm the specific CC variant/attribution before redistributing audio.</td>
+</tr>
+<tr>
+  <td><strong>OpenSLR corpora</strong></td>
+  <td>Many single-language sets (e.g. regional Spanish, Indian languages, African languages)</td>
+  <td>Mixed (mostly CC-BY / Apache)</td>
+  <td>Fills specific gaps where Common Voice is thin.</td>
+  <td>Cherry-pick per-language to balance the library.</td>
+</tr>
+<tr>
+  <td>CMU Wilderness</td>
+  <td>~700 languages (Bible readings)</td>
+  <td><span class="pill p-bad">Restrictive</span> (derived from copyrighted recordings)</td>
+  <td>Huge coverage but you can't redistribute audio — only alignment recipes.</td>
+  <td>Avoid for hosting. Reference only.</td>
+</tr>
+</tbody>
+</table>
+
+<div class="callout">
+  <strong>Why this is tractable:</strong> you do <u>not</u> host whole corpora (those are terabytes). You curate a
+  <strong>balanced subset</strong> — say 60 languages × ~600 vetted clips each ≈ 36,000 clips. At ~60&nbsp;KB/clip
+  (a 3–6&nbsp;s MP3/Opus) that's roughly <strong>2 GB total.</strong> Even a 100k-clip library is ~6 GB — trivial to warehouse.
+</div>
+
+<div class="grid g3">
+  <div class="panel metric"><div class="big">~36k</div><div class="lbl">clips in a solid v1 library<br>(60 langs × 600)</div></div>
+  <div class="panel metric"><div class="big">~2 GB</div><div class="lbl">total storage at 60 KB/clip</div></div>
+  <div class="panel metric"><div class="big">~$0.01</div><div class="lbl">/month B2 storage for 2 GB<br>(egress free via Cloudflare)</div></div>
+</div>
+
+<!-- ============================================================ -->
+<h2 id="recommendation">3. Recommended Data Stack</h2>
+<ol>
+<li><strong>Common Voice = the backbone.</strong> CC0, clean single-speaker MP3s, broad language coverage, and
+crucially it ships <em>accent</em> tags for big languages (Spanish: España/México/Argentina/…; English: US/UK/India/Australia/…). That single fact powers both the global game <em>and</em> the regional-accent mode in one dataset.</li>
+<li><strong>VoxPopuli = the Europe pack.</strong> CC0, spontaneous, 23 EU languages — exactly the region you flagged as most playable for the average person.</li>
+<li><strong>FLEURS = the difficulty scaffolding.</strong> Its built-in geographic region groupings (Western Europe, Eastern Europe, East Asia, SE Asia, …) become your easy-mode region buttons with zero extra labeling.</li>
+<li><strong>VoxLingua107 = authenticity / hard mode.</strong> Real-world YouTube audio for an “in the wild” mode where prosody and noise are part of the challenge (attribute it).</li>
+<li><strong>Speech Accent Archive = the signature twist.</strong> An accent-only mode that's genuinely novel and very shareable among language people.</li>
+<li><strong>Lingua Libre + OpenSLR = gap fillers</strong> for rare languages and the “one word” expert mode.</li>
+</ol>
+<p class="muted">Start with Common Voice + VoxPopuli + FLEURS for v1. They give you global coverage, a Europe pack,
+region tiers, and accent metadata — all under permissive licenses — without touching anything legally messy.</p>
+
+<!-- ============================================================ -->
+<h2 id="curation">4. Curation Pipeline (offline, run once + occasionally)</h2>
+<p>This is a local batch job on your Mac, not part of the deployed app. The output is the warehoused clip
+library on Backblaze + a static JSON manifest.</p>
+<ol class="steps">
+<li class="step"><strong>Download per-language subsets</strong> from Hugging Face / source mirrors (Common Voice, VoxPopuli, FLEURS). Pull only the languages and a capped clip count per language so the library stays balanced.</li>
+<li class="step"><strong>Normalize audio:</strong> transcode every clip to <code>Opus @ 24–32 kbps</code> (or MP3 for max compatibility), mono, trimmed to 3–7 s, loudness-normalized (<code>ffmpeg -af loudnorm</code>) so volume is consistent and no clip leaks an answer via length.</li>
+<li class="step"><strong>Filter for quality &amp; fairness:</strong> drop clips that are too short, clipped, silent, contain music, or where the speaker says the country/language name (a giveaway). A quick Whisper pass can flag clips that literally name the place. <span class="muted">(Whisper is already on this machine.)</span></li>
+<li class="step"><strong>Attach metadata:</strong> language code, language name, country/region, lat-long centroid (for distance scoring), language family, difficulty tier, accent tag (if present), and source + license string.</li>
+<li class="step"><strong>Hash &amp; rename</strong> clips to opaque IDs (e.g. <code>a1b2c3.opus</code>) so the filename never reveals the answer.</li>
+<li class="step"><strong>Upload to a public Cloudflare R2 bucket</strong> (via the S3 API or <code>wrangler r2 object put</code>); emit a single <code>manifest.json</code> (or sharded by mode) describing every clip.</li>
+<li class="step"><strong>Balance check:</strong> verify roughly even clips-per-language and a healthy difficulty distribution, then log what was dropped so coverage gaps are visible — never silently truncate a language.</li>
+</ol>
+
+<div class="callout warn">
+<strong>Fairness detail that makes or breaks the game:</strong> if every Spanish clip is 6 s and every Thai clip is 3 s,
+players will learn to guess by <em>length</em>, not sound. Normalize duration and loudness aggressively. Also strip
+metadata that the audio player might expose.
+</div>
+
+<!-- ============================================================ -->
+<h2 id="architecture">5. Architecture</h2>
+<p>The whole thing is a static site + an object store, glued by Cloudflare's free egress. There is almost no
+server to run.</p>
+
+<pre>
+                 ┌─────────────────────────────────────────────┐
+   Player ──────▶│  Cloudflare Pages  (static JS/HTML/CSS app)  │
+                 │  • game logic, map, scoring — all client-side │
+                 └───────────────┬───────────────────────────────┘
+                                 │  fetch manifest.json (cached at edge)
+                                 ▼
+                 ┌─────────────────────────────────────────────┐
+                 │  Cloudflare R2 bucket  (audio clips + manifest)│
+                 │  public bucket / custom domain                 │
+                 │  ►► egress = $0  always (R2 is Cloudflare)    │
+                 └─────────────────────────────────────────────┘
+
+   Optional dynamic bits (Cloudflare Workers + D1/KV):
+     • daily challenge seed   • global leaderboard   • play stats
+</pre>
+
+<h3>Why Cloudflare R2 (an all-Cloudflare stack)</h3>
+<p>Because the front-end already lives on Cloudflare Pages, <strong>R2 — Cloudflare's own S3-compatible object store —
+is the cleanest fit.</strong> R2 has <strong>zero egress fees, always</strong> (no Bandwidth-Alliance dependency, no
+CNAME/transform-rule hack), a <strong>10 GB-month free storage tier</strong>, and then <code>$0.015/GB/month</code>.
+For a ~2–6 GB clip library that's pennies. It binds natively to Workers and exposes public buckets with automatic
+edge caching, so it's one vendor, one auth, one dashboard.</p>
+<p class="muted"><strong>Backblaze B2 is the fallback</strong> if you ever want cheaper raw storage ($0.006/GB) — egress is
+also free to Cloudflare via the Bandwidth Alliance — but it adds a second vendor and a CNAME-rewrite step. At this
+footprint the cost difference is fractions of a cent, so R2 wins on simplicity.</p>
+
+<div class="callout warn">
+<strong>One-time setup gate:</strong> R2 must be <em>enabled</em> once in the Cloudflare dashboard
+(<code>dash.cloudflare.com → R2 → Enable</code>; it asks for a payment method even though the free tier covers us).
+The account's current wrangler OAuth token also lacks the <code>r2</code> scope, so after enabling, re-run
+<code>wrangler login</code> and grant R2. Pages &amp; D1 already work on the account today.
+</div>
+
+<h3>How serving works</h3>
+<ol>
+<li>Create a public R2 bucket and attach a custom domain (e.g. <code>cdn.lingaguessr.com</code>). Cloudflare caches each clip at the edge on first hit automatically — no extra config.</li>
+<li>The static app on Pages fetches <code>manifest.json</code> once, then requests individual clip URLs on demand. After the first request worldwide, clips serve from Cloudflare cache.</li>
+<li>No origin server, no scaling concerns, no per-request egress cost.</li>
+</ol>
+
+<h3>Credentials &amp; account state</h3>
+<p>You're already authenticated to Cloudflare via wrangler OAuth (account <code>a67eceeb…c9456</code>), so the
+<strong>upload script</strong> and deploys use that — no separate keys to manage for Pages/D1. For R2 specifically:</p>
+<ul>
+<li>The <strong>curation/upload script</strong> on your Mac writes clips via the R2 S3 API (an R2 access-key pair you generate once in the dashboard) or via <code>wrangler r2 object put</code> after granting the R2 scope. Keep any keys in a local <code>.env</code>, never in the repo.</li>
+<li>The deployed front-end ships <em>no</em> credentials — the bucket is read-public; writes happen only from your laptop.</li>
+</ul>
+
+<h3>Front-end stack</h3>
+<ul>
+<li><strong>Vanilla JS or a light framework</strong> (Preact/Svelte if you want components without bloat). The user asked for “mostly JavaScript only” — this honors that.</li>
+<li><strong>Map:</strong> MapLibre GL (open-source, free) or Leaflet for the pin-drop / distance modes.</li>
+<li><strong>Audio:</strong> native <code>&lt;audio&gt;</code> / Web Audio API with a custom replay button and a no-scrub policy (so players can't infer length from a seek bar).</li>
+<li><strong>State/PWA:</strong> installable PWA, offline-capable for a cached daily set.</li>
+</ul>
+
+<!-- ============================================================ -->
+<h2 id="schema">6. Data Schema</h2>
+<p>One manifest describes the whole library. Keep it as a static JSON (optionally sharded by mode/region for
+faster first load). The client picks rounds from this; no DB needed for core play.</p>
+<pre>{
+  "version": "2026-05-28",
+  "clips": [
+    {
+      "id": "a1b2c3",
+      "url": "https://cdn.lingaguessr.com/clips/a1b2c3.opus",
+      "duration": 4.8,
+      "lang": "pt",
+      "lang_name": "Portuguese",
+      "country": "BR",
+      "region": "South America",
+      "geo": [-14.24, -51.93],          // lat,long centroid for distance scoring
+      "family": "Romance",
+      "accent": "brazilian",            // optional, powers accent mode
+      "difficulty": 2,                  // 1 easy … 5 expert
+      "source": "common_voice_20",
+      "license": "CC0-1.0",
+      "attribution": null               // string when license needs it
+    }
+    // … tens of thousands more
+  ],
+  "regions": ["Western Europe","Eastern Europe","East Asia", "..."],
+  "families": ["Romance","Germanic","Slavic","Sinitic", "..."]
+}</pre>
+<p class="muted">For easy mode the client offers the correct answer plus N distractors (ideally <em>near-miss</em>
+distractors — same family/region — so it's a real test). For map mode it scores the dropped pin against
+<code>geo</code> by great-circle distance.</p>
+
+<!-- ============================================================ -->
+<h2 id="gameplay">7. Game Design &amp; Modes</h2>
+
+<h3>Difficulty tiers</h3>
+<div class="grid g2">
+  <div class="panel"><h4>🟢 Easy — Regions</h4><p>“Which part of the world?” 4–6 big region buttons (Europe, East Asia, South Asia, Middle East, Africa, Americas). Uses FLEURS region groupings. The on-ramp for everyone.</p></div>
+  <div class="panel"><h4>🟡 Medium — Multiple Choice</h4><p>Pick the language from 4 options, with <em>near-miss</em> distractors (Spanish vs. Portuguese vs. Italian vs. Romanian). Tests real discrimination.</p></div>
+  <div class="panel"><h4>🟠 Hard — Map Pin</h4><p>Drop a pin on a world map; score by distance to where the language is spoken. The GeoGuessr-classic experience.</p></div>
+  <div class="panel"><h4>🔴 Expert — Linguist</h4><p>Free-text / searchable language picker, no choices given, plus <em>dialect &amp; accent</em> calls. Tiny clips. For the r/linguistics crowd.</p></div>
+</div>
+
+<h3>Themed packs &amp; twists</h3>
+<ul>
+<li><strong>Europe Only</strong> — the most “fair” pack for casual players (your instinct was right). Powered by VoxPopuli.</li>
+<li><strong>Language Family rounds</strong> — “tell Slavic apart,” “Romance showdown,” “the Germanic gauntlet.”</li>
+<li><strong>Accent Mode</strong> — same language, place the regional accent: Castilian vs. Rioplatense vs. Mexican Spanish; US vs. UK vs. Indian English. Common Voice accent tags + Speech Accent Archive.</li>
+<li><strong>Asia Pack</strong> — Asian languages are acoustically distinctive (tones, phonology) and very satisfying to guess; great for casual players despite being “far away.”</li>
+<li><strong>One-Word (Lingua Libre)</strong> — brutal expert mode: a single word, name the language.</li>
+<li><strong>Daily Challenge</strong> — one fixed 5-round game per day for everyone (seeded), with a shareable score. This is the growth engine (see §10).</li>
+</ul>
+
+<h3>Round UX</h3>
+<ol>
+<li>Clip auto-plays once on round start.</li>
+<li><span class="kbd">↻ Replay</span> always visible. <strong>No seek bar</strong> (length is a tell). Each replay reduces the round's max points.</li>
+<li>Player guesses (button / choice / pin / search depending on mode).</li>
+<li><strong>Reveal screen:</strong> correct language, country, a sentence of flavor (“Brazilian Portuguese — note the nasal vowels &amp; the open <em>‘ã’</em>”), the player's distance/accuracy, and points earned. This is where the <em>learning</em> happens and where retention comes from.</li>
+<li>Next round. After 5, a summary + share card.</li>
+</ol>
+
+<!-- ============================================================ -->
+<h2 id="scoring">8. Scoring</h2>
+<p>Mirror GeoGuessr's satisfying point curve, tuned so a cold-ear correct guess feels great.</p>
+<ul>
+<li><strong>Base:</strong> up to <code>5000</code> points per round (so 25,000 for a 5-round game).</li>
+<li><strong>Map mode:</strong> exponential distance decay — <code>points = 5000 · e^(−distance / k)</code>. A pin in the right country ≈ near-max; right continent = partial; wrong hemisphere ≈ 0.</li>
+<li><strong>Choice/region mode:</strong> full points for correct; partial credit for a “close” answer (same family or neighboring region) keeps casual players hooked instead of zeroing out.</li>
+<li><strong>Replay penalty:</strong> first listen is free; each extra replay multiplies the round cap by ~0.85. Guess on one listen → eligible for the full 5000 and a “Golden Ear” bonus.</li>
+<li><strong>Speed bonus (optional):</strong> small bonus for fast confident guesses, to add tension.</li>
+<li><strong>Streaks &amp; ranks:</strong> daily streaks, lifetime accuracy, and ear-rank tiers (Tin Ear → Tourist → Polyglot → Linguist → Golden Ear).</li>
+</ul>
+
+<!-- ============================================================ -->
+<h2 id="names">9. Name Brainstorm</h2>
+<p>“LinguaGuessr” is a fine, descriptive placeholder (and rides GeoGuessr's recognition), but here are stronger,
+more ownable options grouped by angle. Top picks marked <span class="star">★</span>.</p>
+
+<div class="grid g2">
+<div class="panel">
+<h4>The “Where in the Word” angle (pun-forward, friendly)</h4>
+<ul>
+<li><span class="star">★</span> <strong>Where in the Word</strong> — near-perfect pun on “where in the world,” instantly communicates the game.</li>
+<li><strong>Wordld</strong> — “word” + “world” fused. Logo-friendly.</li>
+<li><strong>Say Where</strong> — short, punchy, app-store friendly.</li>
+</ul>
+</div>
+<div class="panel">
+<h4>The “ear / listening” angle (evokes the core skill)</h4>
+<ul>
+<li><span class="star">★</span> <strong>Earwitness</strong> — “earwitness” is a real word (auditory counterpart to eyewitness); evocative and ownable.</li>
+<li><strong>Golden Ear</strong> — also a great top rank name; could be the brand.</li>
+<li><strong>EchoMap</strong> / <strong>Earshot</strong> / <strong>Overheard</strong> — “Overheard” is especially evocative.</li>
+</ul>
+</div>
+<div class="panel">
+<h4>The “tongue / speech” angle (linguistic, slightly literary)</h4>
+<ul>
+<li><span class="star">★</span> <strong>Mother Tongue</strong> — warm, universally understood, strong brand.</li>
+<li><strong>Tongues</strong> / <strong>Slip of the Tongue</strong> / <strong>Parley</strong> (“to speak”).</li>
+<li><strong>Babel</strong>-family: <strong>Babbleguess</strong>, <strong>Tower</strong> (Tower of Babel) — but “Babbel” the app is a trademark collision; avoid anything that close.</li>
+</ul>
+</div>
+<div class="panel">
+<h4>The “-guessr” / GeoGuessr-adjacent angle</h4>
+<ul>
+<li><strong>LinguaGuessr</strong> (placeholder), <strong>LangGuessr</strong>, <strong>TongueGuessr</strong>, <strong>DialectGuessr</strong>, <strong>PolyGuessr</strong>.</li>
+<li class="muted">Pro: instant comprehension. Con: derivative, and “-guessr” may invite trademark friction with GeoGuessr; safer for an MVP than a long-term brand.</li>
+</ul>
+</div>
+</div>
+
+<div class="callout">
+<strong>Recommendation:</strong> ship the MVP as <strong>LinguaGuessr</strong> (clear, SEO-friendly, sets expectations),
+but secure <strong>“Where in the Word”</strong> or <strong>“Earwitness”</strong> as the real brand for launch. Both are
+memorable, ownable, and not derivative. <em>Action: check domain + app-store + trademark availability for the top 3 before committing.</em>
+</div>
+
+<!-- ============================================================ -->
+<h2 id="marketing">10. Marketing &amp; Growth</h2>
+
+<h3>The viral engine: a daily challenge with a shareable card</h3>
+<p>This is the Wordle/GeoGuessr playbook and it's the single highest-leverage growth feature. One fixed
+5-round game per day for everyone. At the end, a <strong>spoiler-free emoji score card</strong> they can paste anywhere:</p>
+<pre>🌍 LinguaGuessr Daily #142
+🔊🔊🔊🔊🔊  21,840 / 25,000
+🟩🟩🟨🟩🟥   Golden Ear streak: 6
+lingaguessr.com</pre>
+<p>No spoilers, pure flex, one-tap share → friends click → they play → loop closes. Wordle proved this is the
+cheapest growth there is.</p>
+
+<h3>Community channels (warm, ready-made audiences)</h3>
+<ul>
+<li><strong>Reddit:</strong> r/geoguessr (the obvious crossover), r/linguistics, r/languagelearning, r/etymology, r/languages. Launch with a “I built GeoGuessr but for languages” post — that framing alone gets clicks.</li>
+<li><strong>Language-learning communities:</strong> Duolingo forums/Discords, polyglot YouTube (Xiaomanyc, Days of French'n'Swedish, Language Simp), language Twitter/X. Many will make “can I beat LinguaGuessr” content for free.</li>
+<li><strong>TikTok/Shorts format:</strong> “Guess the language in 3 seconds” is a natively viral short-form format. Seed it yourself; creators will copy it.</li>
+</ul>
+
+<h3>Retention &amp; identity</h3>
+<ul>
+<li>Daily streaks + ear-rank progression (Tin Ear → … → Golden Ear).</li>
+<li>The reveal screen teaches a little every round → players feel themselves getting better, which is the real retention driver.</li>
+<li>Leaderboards (daily / weekly / all-time) via a tiny Cloudflare Worker + D1.</li>
+</ul>
+
+<h3>Positioning one-liner</h3>
+<p class="muted">“GeoGuessr trained your eyes. LinguaGuessr trains your ear. Hear a stranger speak — guess where they're from.”</p>
+
+<!-- ============================================================ -->
+<h2 id="costs">11. Costs (intentionally near-zero)</h2>
+<table>
+<thead><tr><th>Line item</th><th>Cost</th><th>Note</th></tr></thead>
+<tbody>
+<tr><td>Cloudflare Pages</td><td><span class="pill p-good">$0</span></td><td>Free tier covers static hosting + generous requests.</td></tr>
+<tr><td>Cloudflare R2 storage (2–6 GB)</td><td><span class="pill p-good">$0</span></td><td>First 10 GB-month free; then $0.015/GB. Library fits in the free tier.</td></tr>
+<tr><td>Egress (audio bandwidth)</td><td><span class="pill p-good">$0</span></td><td>R2 egress is always free + Cloudflare edge cache.</td></tr>
+<tr><td>Cloudflare Workers + D1 (leaderboard/daily)</td><td><span class="pill p-good">$0 → ~$5/mo</span></td><td>Free tier huge; only pay if you blow up.</td></tr>
+<tr><td>Domain</td><td>~$10/yr</td><td>The one guaranteed cost.</td></tr>
+<tr><td>Map tiles (MapLibre + free tile source)</td><td><span class="pill p-good">$0</span></td><td>Use free/open tiles; self-host if volume grows.</td></tr>
+</tbody>
+</table>
+<p class="big" style="margin-top:8px">≈ $1/month + a domain, until you have real traffic.</p>
+
+<!-- ============================================================ -->
+<h2 id="legal">12. Legal &amp; Risk</h2>
+<ul>
+<li><strong>Licensing hygiene:</strong> prefer CC0 sources (Common Voice, VoxPopuli) to avoid attribution overhead. For CC-BY sources (FLEURS, VoxLingua107), store the <code>attribution</code> string per clip and surface a credits page. Confirm the exact CC variant for Speech Accent Archive before bulk-redistributing its audio.</li>
+<li><strong>VoxLingua107 caveat:</strong> it's YouTube-sourced and copyright stays with original owners under CC-BY tagging — fine for a derived language-ID dataset, but spot-check clips and don't lean on it as the sole source for any language.</li>
+<li><strong>Don't expose answers:</strong> opaque clip IDs, stripped metadata, no seek bar, loudness/length normalization. Otherwise leaderboards get gamed.</li>
+<li><strong>Sensitivity:</strong> framing matters — this is a celebration of linguistic diversity, not mockery of accents. Keep copy respectful; it also plays better with the linguistics community you want on your side.</li>
+<li><strong>Trademark:</strong> avoid names too close to GeoGuessr (the “-guessr” suffix) and Babbel for the permanent brand; clear the top name before launch.</li>
+</ul>
+
+<!-- ============================================================ -->
+<h2 id="roadmap">13. Build Roadmap</h2>
+<ol class="steps">
+<li class="step"><strong>Data spike (the real work):</strong> build the curation pipeline. Pull 10 languages from Common Voice, normalize to Opus, generate a 1,000-clip <code>manifest.json</code>, upload to a B2 test bucket fronted by Cloudflare. <em>Validates the whole data path end-to-end.</em></li>
+<li class="step"><strong>Playable core:</strong> static JS app on Pages — fetch manifest, play clip, multiple-choice guess, scoring, reveal screen, 5-round game. No map yet.</li>
+<li class="step"><strong>Modes &amp; map:</strong> add region (easy) + map-pin (hard) modes with MapLibre + distance scoring; add replay penalty &amp; ranks.</li>
+<li class="step"><strong>Scale the library:</strong> expand to 50–60 languages + the Europe pack (VoxPopuli) + FLEURS region tags; balance &amp; fairness pass.</li>
+<li class="step"><strong>Daily challenge + share card:</strong> seeded daily game, emoji score card, basic leaderboard (Worker + D1). This is the launch-ready growth feature.</li>
+<li class="step"><strong>Accent mode + polish:</strong> Common Voice accent tags + Speech Accent Archive; PWA install; rank progression; reveal-screen flavor text.</li>
+<li class="step"><strong>Launch:</strong> Reddit (r/geoguessr, r/languagelearning) + a “guess the language in 3s” short. Iterate on what the daily-challenge retention curve tells you.</li>
+</ol>
+
+<div class="callout">
+<strong>The one thing to internalize:</strong> 80% of the product's quality lives in the <em>curation pipeline</em> (step 1)
+— balanced languages, normalized audio, no answer leaks, clean licenses. The front-end is a weekend; the dataset is the moat.
+</div>
+
+<hr>
+<h3>Sources</h3>
+<ul class="muted" style="font-size:13px">
+<li>Common Voice (CC0, 250+ langs, accent metadata): <a href="https://commonvoice.mozilla.org/">commonvoice.mozilla.org</a> · <a href="https://en.wikipedia.org/wiki/Common_Voice">Wikipedia</a> · <a href="https://www.mozillafoundation.org/en/blog/common-voice-18-dataset-release/">CV18 release</a></li>
+<li>VoxLingua107 (CC BY 4.0, 107 langs, language-ID): <a href="https://arxiv.org/abs/2011.12998">arXiv 2011.12998</a> · <a href="https://huggingface.co/datasets/TalTechNLP/voxlingua107_wds">HF</a></li>
+<li>VoxPopuli (CC0, 23 EU langs): <a href="https://huggingface.co/datasets/facebook/voxpopuli">HF</a> · <a href="https://ai.meta.com/blog/voxpopuli-the-largest-open-multilingual-speech-corpus-for-ai-translation-and-more/">Meta AI</a></li>
+<li>FLEURS (CC BY, 102 langs, region-grouped): <a href="https://huggingface.co/datasets/google/fleurs">HF</a></li>
+<li>Lingua Libre (CC0/CC-BY/CC-BY-SA, 310+ langs): <a href="https://en.wikipedia.org/wiki/Lingua_Libre">Wikipedia</a> · <a href="https://commons.wikimedia.org/wiki/Commons:Lingua_Libre">Commons</a></li>
+<li>Speech Accent Archive (CC): <a href="https://accent.gmu.edu/about.php">accent.gmu.edu</a></li>
+<li>Cloudflare R2 (zero egress, S3-compatible, 10 GB free): <a href="https://developers.cloudflare.com/r2/">developers.cloudflare.com/r2</a></li>
+<li>Backblaze B2 (fallback) + Cloudflare free egress: <a href="https://www.backblaze.com/blog/backblaze-and-cloudflare-partner-to-provide-free-data-transfer/">Backblaze/Cloudflare partnership</a> · <a href="https://www.backblaze.com/docs/cloud-storage-deliver-public-backblaze-b2-content-through-cloudflare-cdn">B2→CF CDN docs</a></li>
+</ul>
+
+<div class="footer">
+  LinguaGuessr — product &amp; build spec · drafted 2026-05-28 · <code>LINGUAGUESSR_SPEC.html</code>
+</div>
+
+</div>
+</body>
+</html>

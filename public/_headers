@@ -1,0 +1,15 @@
+# Hashed build assets are immutable — cache them hard.
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# index.html (and the SPA entry) must NEVER be cached, or a stale copy will
+# keep requesting a previous deploy's hashed bundle, which 404s and falls back
+# to HTML — the "Unexpected token '<'" / blank-app failure. Always revalidate.
+/
+  Cache-Control: public, max-age=0, must-revalidate
+/index.html
+  Cache-Control: public, max-age=0, must-revalidate
+
+# Game data: revalidate so manifest updates ship without a hard refresh.
+/manifest.json
+  Cache-Control: public, max-age=0, must-revalidate

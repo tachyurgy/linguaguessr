@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LinguaGuessr — Growth, Money &amp; Career Strategy</title>
+<style>
+  :root{
+    --ink:#16140f; --paper:#fbf9f4; --rule:#e4ddcd; --muted:#6b6457;
+    --accent:#d2401e; --accent-soft:#fbe7df; --good:#1f7a4d; --good-soft:#e3f2e9;
+    --warn:#b8740b; --warn-soft:#fbf0db; --card:#fff;
+    --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+    --sans:'Inter Tight',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);
+    line-height:1.62;font-size:17px;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:860px;margin:0 auto;padding:0 26px 120px}
+  header.masthead{border-bottom:3px solid var(--ink);padding:56px 0 26px;margin-bottom:14px}
+  .kicker{font-family:var(--mono);font-size:12px;letter-spacing:.18em;text-transform:uppercase;
+    color:var(--accent);font-weight:600}
+  h1{font-size:46px;line-height:1.03;letter-spacing:-.02em;margin:.28em 0 .15em;font-weight:800}
+  .sub{font-size:19px;color:var(--muted);max-width:62ch}
+  .meta{font-family:var(--mono);font-size:12px;color:var(--muted);margin-top:18px;
+    display:flex;flex-wrap:wrap;gap:6px 20px}
+  h2{font-size:13px;font-family:var(--mono);letter-spacing:.16em;text-transform:uppercase;
+    color:var(--accent);margin:56px 0 6px;font-weight:700}
+  h2 .num{color:var(--rule);margin-right:10px}
+  h3{font-size:24px;letter-spacing:-.01em;margin:30px 0 6px;font-weight:700}
+  h4{font-size:18px;margin:22px 0 4px;font-weight:700}
+  p{margin:12px 0}
+  a{color:var(--accent);text-decoration:none;border-bottom:1px solid var(--accent-soft)}
+  a:hover{border-color:var(--accent)}
+  strong{font-weight:700}
+  .lead{font-size:20px;line-height:1.55}
+  ul,ol{margin:12px 0;padding-left:22px}
+  li{margin:7px 0}
+  blockquote{margin:22px 0;padding:16px 22px;background:var(--card);border-left:4px solid var(--accent);
+    border-radius:0 8px 8px 0;font-size:18px;box-shadow:0 1px 0 var(--rule)}
+  .tldr{background:var(--ink);color:var(--paper);border-radius:14px;padding:30px 32px;margin:26px 0}
+  .tldr h2{color:#ffb59e;margin-top:0}
+  .tldr strong{color:#fff}
+  .tldr a{color:#ffc7b5;border-color:rgba(255,255,255,.25)}
+  .card{background:var(--card);border:1px solid var(--rule);border-radius:12px;padding:20px 24px;margin:16px 0}
+  .flag{padding:14px 18px;border-radius:10px;margin:14px 0;font-size:16px}
+  .flag.warn{background:var(--warn-soft);border:1px solid #ecd29a}
+  .flag.good{background:var(--good-soft);border:1px solid #bfe3cf}
+  .flag.kill{background:var(--accent-soft);border:1px solid #f3c4b6}
+  .flag b{display:block;font-family:var(--mono);font-size:11px;letter-spacing:.12em;
+    text-transform:uppercase;margin-bottom:3px}
+  .flag.warn b{color:var(--warn)} .flag.good b{color:var(--good)} .flag.kill b{color:var(--accent)}
+  table{width:100%;border-collapse:collapse;margin:18px 0;font-size:15px}
+  th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--rule);vertical-align:top}
+  th{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+  td.tier{font-weight:700;white-space:nowrap}
+  .pri{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:700;
+    padding:2px 8px;border-radius:20px;color:#fff}
+  .p1{background:var(--accent)} .p2{background:var(--warn)} .p3{background:var(--muted)}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:16px 0}
+  @media(max-width:640px){.grid2{grid-template-columns:1fr}h1{font-size:34px}}
+  .checklist{list-style:none;padding-left:0}
+  .checklist li{padding-left:30px;position:relative}
+  .checklist li::before{content:'☐';position:absolute;left:0;font-size:18px;color:var(--accent)}
+  hr{border:none;border-top:1px solid var(--rule);margin:46px 0}
+  .footnote{font-size:14px;color:var(--muted);font-family:var(--mono)}
+  .big{font-size:30px;font-weight:800;letter-spacing:-.01em;line-height:1.2;margin:10px 0}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="masthead">
+  <div class="kicker">Levelbrook · Growth Memo</div>
+  <h1>LinguaGuessr: how to make it spread, make money, and pay off your career</h1>
+  <p class="sub">An opinionated product &amp; viral-growth read on "GeoGuessr for the ear" — what to build next, where to launch it, and the one strategic decision that makes the rest fall into place.</p>
+  <div class="meta">
+    <span>2026-06-02</span>
+    <span>lingua.levelbrook.com</span>
+    <span>765 clips live · 38 langs / 8 regions</span>
+    <span>React + Vite · Cloudflare Pages</span>
+  </div>
+</header>
+
+<div class="tldr">
+  <h2>The one-paragraph version</h2>
+  <p class="lead">LinguaGuessr will not make you meaningful money <em>as a game</em> — guessing games almost never do. Its real value is as a <strong>viral attention magnet that converts into Levelbrook leads and career capital.</strong> So stop thinking "how do I monetize the game" and start thinking "how do I get 100,000 language nerds to play it and walk away knowing Levelbrook builds excellent software." The viral engine is the <strong>Wordle loop</strong> (daily puzzle + a copy-paste shareable score), the distribution is <strong>language TikTok + Reddit + Show HN</strong>, and the payoff is a <strong>"how I built this" engineering essay</strong> that turns curious players into consulting prospects.</p>
+</div>
+
+<h2><span class="num">01</span>The strategic fork — pick one</h2>
+<p>You listed four goals — viral, successful, make money, help career. They quietly conflict. A product you optimize to <em>sell</em> is built differently from one you optimize to <em>spread</em>. You have to pick the primary objective; everything else becomes a side effect.</p>
+
+<div class="grid2">
+  <div class="card">
+    <h4>Path A — Standalone game business</h4>
+    <p>Optimize for DAU, retention, ad/subscription revenue. <strong>Honest verdict:</strong> brutal. Free word/guess games monetize at pennies per user; you'd need millions of plays before ad revenue buys lunch. Wordle sold to NYT for the <em>audience</em>, not the revenue.</p>
+  </div>
+  <div class="card">
+    <h4>Path B — Marketing &amp; credibility flywheel ✅</h4>
+    <p>The game is bait. It pulls a smart, global audience, proves Levelbrook ships polished software, and feeds an engineering-content engine that generates consulting leads and recruiter interest. <strong>This is the right call for you.</strong></p>
+  </div>
+</div>
+
+<blockquote><strong>Recommendation: commit to Path B.</strong> Build just enough viral mechanics to spread, then point every spike of attention at "built by Levelbrook." Money comes from one closed Rails contract, not from the game itself — and one contract dwarfs any plausible ad revenue.</blockquote>
+
+<div class="flag warn">
+  <b>Brand mismatch to resolve</b>
+  Levelbrook sells itself as the "#1 <em>Rails</em> staff-aug shop," but LinguaGuessr is React + Vite + a Python/Whisper corpus pipeline. That's fine — but the credibility story can't be "look, Rails." It has to be <em>"look, this team engineers hard things end-to-end: a Whisper-verified multilingual audio corpus, real-time UX, global edge deploy."</em> Senior generalist competence is what C2C buyers actually screen for. Frame it that way.
+</div>
+
+<h2><span class="num">02</span>The viral engine — what actually makes these spread</h2>
+<p>Guessing games go viral through a small, well-understood set of loops. You already have the hard part (a genuinely novel, delightful core). The spread mechanics are mostly missing or unconfirmed.</p>
+
+<div class="flag kill">
+  <b>Red alert — the Daily loop</b>
+  Your <code>README</code> advertises a <strong>Daily Challenge with a shareable emoji score card + streaks</strong>. Your <code>RELEASES.md</code> says Daily was <strong>dropped</strong> during the 05-30→06-01 polish. <strong>These contradict.</strong> If Daily is actually gone, that is the single most damaging decision for virality — it removes the entire Wordle engine. <strong>First action: confirm which is true, and if Daily is gone, bring it back.</strong> Nothing else on this page matters as much.
+</div>
+
+<h3>The four loops, in priority order</h3>
+
+<h4>1. The Wordle loop — Daily + shareable result <span class="pri p1">P1</span></h4>
+<ul>
+  <li><strong>One daily puzzle everyone hears the same.</strong> Scarcity ("today's 5 clips") creates a reason to come back and a reason to talk.</li>
+  <li><strong>A copy-to-clipboard result card</strong> — emoji grid, no spoilers. The share <em>is</em> the ad. Example:
+    <blockquote style="font-family:var(--mono);font-size:14px;margin:10px 0">🌍 LinguaGuessr #214<br>🦻🟩🟩 🟨⬛ 4,820 pts<br>Streak: 7 · lingua.levelbrook.com</blockquote>
+  </li>
+  <li><strong>Streaks.</strong> The cheapest retention mechanic ever invented. Loss aversion does the work.</li>
+</ul>
+
+<h4>2. Challenge-a-friend (async head-to-head) <span class="pri p1">P1</span></h4>
+<ul>
+  <li>"Send these 5 clips to a friend, compare scores" via a shareable URL that seeds the same clips. This is the <em>person-to-person</em> loop — it spreads through DMs and group chats, not feeds. Cheapest possible multiplayer (no backend matchmaking, just a seeded link).</li>
+</ul>
+
+<h4>3. Short-form video native <span class="pri p1">P1</span></h4>
+<ul>
+  <li>Your format is <em>tailor-made</em> for TikTok/Reels/Shorts: "Can you guess this language in 5 seconds?" Polyglot &amp; linguistics content is one of the highest-engagement niches on these platforms.</li>
+  <li>Make the reveal screen <strong>screen-record-beautiful</strong> (it mostly is): big flag, greeting, "spoken by X million," a satisfying confetti beat. Creators will film themselves playing if the reveal is shareable eye-candy.</li>
+  <li>Add an explicit "📷 Share this round" button that produces a clean vertical card.</li>
+</ul>
+
+<h4>4. Leaderboards / "Golden Ear" bragging <span class="pri p2">P2</span></h4>
+<ul>
+  <li>Weekly leaderboard + the 🦻 Golden Ear badge (nail it on one listen). Status is a retention drug. Keep it lightweight; don't build accounts yet (anonymous device ID is fine to start).</li>
+</ul>
+
+<h2><span class="num">03</span>Distribution — where to actually launch it</h2>
+<p>Build doesn't equal spread. You need a deliberate launch sequence, not a "post it and hope." Do these in roughly this order over ~2–3 weeks.</p>
+
+<table>
+  <thead><tr><th>Channel</th><th>Why it fits</th><th>Move</th></tr></thead>
+  <tbody>
+    <tr><td class="tier">Show HN <span class="pri p1">P1</span></td><td>HN loves a tasteful, well-built browser toy with a technical backstory. Doubles as Levelbrook proof for the exact audience that hires devs.</td><td>"Show HN: GeoGuessr for the ear — guess the language from native speech." Link the game; in the first comment, tell the Whisper-corpus build story.</td></tr>
+    <tr><td class="tier">r/languagelearning <span class="pri p1">P1</span></td><td>Your bullseye audience. Huge, engaged, loves tools.</td><td>Frame as "I built a free game to train your ear." No hard sell. Be present in comments.</td></tr>
+    <tr><td class="tier">Language TikTok / YouTube <span class="pri p1">P1</span></td><td>Where this goes <em>actually</em> viral. Polyglot creators are always hunting for content.</td><td>DM 10–20 mid-size polyglot creators a personal "challenge link." If one big one plays it on camera, that's your spike.</td></tr>
+    <tr><td class="tier">r/geoguessr, r/linguistics, r/duolingo <span class="pri p2">P2</span></td><td>Adjacent audiences who'll instantly "get it."</td><td>Cross-post with slightly different framing per sub. Space them out — don't blast same-day.</td></tr>
+    <tr><td class="tier">Product Hunt <span class="pri p2">P2</span></td><td>Indie/maker visibility + a permanent backlink + "featured" credibility.</td><td>Launch <em>after</em> Daily + share card exist, so traffic lands on the viral version.</td></tr>
+    <tr><td class="tier">Discord (language/polyglot servers) <span class="pri p3">P3</span></td><td>Tight communities that run "guess the language" games already.</td><td>Drop the challenge link where it's welcome; don't spam.</td></tr>
+  </tbody>
+</table>
+
+<div class="flag good">
+  <b>Launch rule</b>
+  Do <strong>not</strong> launch publicly until the Daily loop + a working share card are live. A first wave of traffic hitting a game with no return-and-share mechanic is wasted ammunition — you only get one Show HN / Product Hunt front page. Build the engine, <em>then</em> light the fuse.
+</div>
+
+<h2><span class="num">04</span>Making money — the honest menu</h2>
+<p>Ranked by realistic expected value <em>for your situation</em>, not by what's theoretically possible.</p>
+
+<ol>
+  <li><strong>Lead-gen for Levelbrook (by far #1).</strong> One C2C Rails contract is worth more than this game will <em>ever</em> earn in ad revenue. Treat every player as a top-of-funnel impression for the consultancy. This is the money play. Everything below is rounding error by comparison.</li>
+  <li><strong>"Buy me a coffee" / Ko-fi / GitHub Sponsors.</strong> Zero-effort, captures goodwill from people who love it. Won't pay rent, but it's free to add and signals the project is loved.</li>
+  <li><strong>Light premium tier ($2–4 one-time or cheap sub):</strong> unlimited Classic, no future ads, extra modes, stats history. Only worth building <em>if</em> you hit real DAU. Don't build it speculatively.</li>
+  <li><strong>B2B / licensing (long shot, high ceiling):</strong> language-learning companies (Babbel, Pimsleur, Glossika, smaller apps) and university linguistics departments could license a "listening trainer." If the game gets traction, this becomes a real conversation. Don't chase it cold; let traction create inbound.</li>
+  <li><strong>Ads — last resort.</strong> Only meaningful at six-figure DAU, and they cheapen the brand-credibility play. Skip until/unless scale forces the question.</li>
+</ol>
+
+<blockquote>Mental model: <strong>LinguaGuessr is a $50k–$200k consulting brochure disguised as a free toy</strong>, not a $50/month side hustle. Price your effort accordingly.</blockquote>
+
+<h2><span class="num">05</span>The career &amp; LLC payoff — the part that compounds</h2>
+<p>This is where the project quietly earns its keep regardless of whether it goes viral.</p>
+
+<h4>Write the "how I built this" essay (do this no matter what)</h4>
+<p>Publish one strong engineering essay on <strong>consulting.levelbrook.com</strong> (you already have 19 essays there — this is essay #20). Working titles:</p>
+<ul>
+  <li>"Building a Whisper-verified multilingual audio corpus from scratch"</li>
+  <li>"Shipping a viral-ready guessing game on the Cloudflare edge"</li>
+  <li>"The data pipeline behind LinguaGuessr: 765 clips, 38 languages, zero manual labeling"</li>
+</ul>
+<p>The essay does three jobs at once: <strong>(1)</strong> SEO + credibility for Levelbrook, <strong>(2)</strong> the "first comment" payload for Show HN, <strong>(3)</strong> a portfolio piece you can hand any recruiter or client. The game is the hook; the essay is the proof; the CTA ("Levelbrook builds software like this — let's talk") is the conversion.</p>
+
+<h4>Wire the funnel</h4>
+<ul>
+  <li>Tasteful "<strong>Built by Levelbrook →</strong>" in the footer and reveal screen, linking to <a href="https://consulting.levelbrook.com">consulting.levelbrook.com</a> (keep it brand-only / anonymous per your identity rules — no personal name on the public game).</li>
+  <li>From the essay, link the live demo and the GitHub repo (clean commit history, real tests, good README = the resume that recruiters actually read).</li>
+  <li>Add it to your portfolio + the resume's "selected work" line.</li>
+</ul>
+
+<div class="flag good">
+  <b>Why this works for hiring</b>
+  A live, polished, genuinely fun product with a public build story is the single most persuasive artifact a senior engineer can show. It pre-answers "can this person ship?" before the first call. That's worth more to your career than any bullet point.
+</div>
+
+<h2><span class="num">06</span>Do-this-next — the prioritized checklist</h2>
+
+<h3>This week (the engine)</h3>
+<ul class="checklist">
+  <li><span class="pri p1">P1</span> &nbsp;Resolve the Daily contradiction — confirm whether Daily exists. If not, restore it.</li>
+  <li><span class="pri p1">P1</span> &nbsp;Ship the copy-to-clipboard <strong>emoji result card</strong> (the share = the ad).</li>
+  <li><span class="pri p1">P1</span> &nbsp;Ship <strong>challenge-a-friend</strong> seeded-link mode.</li>
+  <li><span class="pri p1">P1</span> &nbsp;Make the reveal screen screen-record-beautiful + add "share this round" card.</li>
+  <li><span class="pri p2">P2</span> &nbsp;Add streaks + a lightweight weekly leaderboard (anonymous device ID).</li>
+</ul>
+
+<h3>Next week (the fuse)</h3>
+<ul class="checklist">
+  <li><span class="pri p1">P1</span> &nbsp;Write the engineering essay; publish on consulting.levelbrook.com.</li>
+  <li><span class="pri p1">P1</span> &nbsp;Wire the "Built by Levelbrook →" funnel into the game.</li>
+  <li><span class="pri p1">P1</span> &nbsp;Show HN launch (game link + build-story first comment).</li>
+  <li><span class="pri p1">P1</span> &nbsp;r/languagelearning post; DM 10–20 polyglot creators a challenge link.</li>
+  <li><span class="pri p2">P2</span> &nbsp;Product Hunt launch; cross-post adjacent subreddits, spaced out.</li>
+</ul>
+
+<h3>If it gets traction (the upside)</h3>
+<ul class="checklist">
+  <li><span class="pri p3">P3</span> &nbsp;Add Ko-fi / Sponsors; consider a light premium tier.</li>
+  <li><span class="pri p3">P3</span> &nbsp;Field B2B/licensing inbound; let traction open those doors.</li>
+  <li><span class="pri p3">P3</span> &nbsp;Expand corpus breadth (more languages = more "I want my language in it" shares).</li>
+</ul>
+
+<hr>
+
+<p class="big">Bottom line</p>
+<p class="lead">You don't have a money problem, you have a <strong>distribution + framing</strong> problem. The game is good enough. Build the Wordle loop so it can spread, point the spread at Levelbrook with one great essay, and let the attention do what ad revenue never could: put your work in front of people who hire engineers. That's the whole strategy.</p>
+
+<p class="footnote">— Growth memo · LinguaGuessr · 2026-06-02 · supersedes <code>docs/product-marketing-review.html</code></p>
+
+</div>
+</body>
+</html>

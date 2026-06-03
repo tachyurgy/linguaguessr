@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>LinguaGuessr Audio Data Source Options</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --ink: #17202f;
+        --muted: #5f6d7e;
+        --line: #d9e0ea;
+        --panel: #f7f9fc;
+        --accent: #166a56;
+        --warn: #8a5a00;
+        --bad: #9f2936;
+      }
+      body {
+        margin: 0;
+        font: 16px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        color: var(--ink);
+        background: white;
+      }
+      main {
+        max-width: 1120px;
+        margin: 0 auto;
+        padding: 40px 24px 64px;
+      }
+      h1, h2, h3 {
+        line-height: 1.12;
+        margin: 0;
+      }
+      h1 {
+        font-size: clamp(34px, 5vw, 54px);
+        letter-spacing: -0.02em;
+      }
+      h2 {
+        margin-top: 42px;
+        font-size: 26px;
+      }
+      h3 {
+        margin-top: 24px;
+        font-size: 19px;
+      }
+      p {
+        max-width: 78ch;
+      }
+      a {
+        color: #075eb5;
+      }
+      .lede {
+        font-size: 20px;
+        color: var(--muted);
+        max-width: 76ch;
+      }
+      .callout {
+        border: 1px solid var(--line);
+        background: var(--panel);
+        border-radius: 8px;
+        padding: 18px 20px;
+        margin: 28px 0;
+      }
+      .callout strong {
+        color: var(--accent);
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0 30px;
+        font-size: 14px;
+      }
+      th, td {
+        border: 1px solid var(--line);
+        padding: 12px 13px;
+        vertical-align: top;
+        text-align: left;
+      }
+      th {
+        background: #eef3f8;
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: .04em;
+      }
+      .score {
+        white-space: nowrap;
+        font-weight: 700;
+      }
+      .good {
+        color: var(--accent);
+      }
+      .caution {
+        color: var(--warn);
+      }
+      .bad {
+        color: var(--bad);
+      }
+      code {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        font-size: .94em;
+        background: #eef3f8;
+        padding: 1px 5px;
+        border-radius: 4px;
+      }
+      ul {
+        padding-left: 22px;
+      }
+      li {
+        margin: 8px 0;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+      }
+      .card {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 16px 18px;
+        background: #fff;
+      }
+      @media (max-width: 760px) {
+        .grid {
+          grid-template-columns: 1fr;
+        }
+        table {
+          display: block;
+          overflow-x: auto;
+          white-space: nowrap;
+        }
+        td {
+          white-space: normal;
+          min-width: 190px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Audio Data Source Options for a Better LinguaGuessr</h1>
+      <p class="lede">
+        The current Lingua Libre library is easy to ship, but many clips are isolated words. For a game about listening,
+        5-10 second phrases or short sentences would feel more human, give players enough phonetic texture to guess, and
+        make reveal screens more interesting.
+      </p>
+
+      <div class="callout">
+        <strong>Recommendation:</strong> use Mozilla Common Voice as the first production replacement for the main language
+        game, keep the Speech Accent Archive only for Accent Mode, and evaluate FLEURS as a controlled parallel-sentence
+        mode. If we want endangered-language flavor, treat archives like Pangloss/ELAR as curated editorial additions, not
+        the bulk game corpus.
+      </div>
+
+      <h2>Decision Matrix</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Source</th>
+            <th>Fit for 5-10s clips</th>
+            <th>Coverage</th>
+            <th>License / rights risk</th>
+            <th>Implementation notes</th>
+            <th>Verdict</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><a href="https://commonvoice.mozilla.org/data">Mozilla Common Voice</a></td>
+            <td>Strong. Scripted sentence clips are usually phrase/sentence length and include transcript TSVs.</td>
+            <td>Very broad multilingual coverage; current Data Collective listing exposes hundreds of datasets/locales.</td>
+            <td class="good">Low. Dataset pages list CC0 for Common Voice releases.</td>
+            <td>Download per locale, filter validated clips to 5-10 seconds, normalize MP3, store attribution-free metadata. Need locale-to-game-language mapping.</td>
+            <td class="score good">Best primary source</td>
+          </tr>
+          <tr>
+            <td><a href="https://huggingface.co/datasets/google/fleurs">Google FLEURS</a></td>
+            <td>Strong. Parallel prompt sentences across languages; good for direct language comparison.</td>
+            <td>102 languages, roughly 12 hours per language per the FLEURS paper.</td>
+            <td class="good">Low/medium. Dataset card and Google Research repo state CC BY/CC BY 4.0; attribution required.</td>
+            <td>Great for a special mode where every language reads translated variants of the same prompt. Less natural than Common Voice.</td>
+            <td class="score good">Best controlled mode</td>
+          </tr>
+          <tr>
+            <td><a href="https://tatoeba.org/en/downloads">Tatoeba audio sentences</a></td>
+            <td>Good when audio exists; clips are sentence-level and learner-friendly.</td>
+            <td>Uneven. Excellent for popular learner languages, sparse elsewhere.</td>
+            <td class="caution">Medium. Text/audio licenses vary by sentence/contributor; attribution and compatibility checks are required.</td>
+            <td>Use the downloadable audio metadata, filter only known-compatible licenses, and preserve per-clip attribution.</td>
+            <td class="score caution">Good supplement</td>
+          </tr>
+          <tr>
+            <td><a href="https://huggingface.co/datasets/TalTechNLP/voxlingua107_wds">VoxLingua107</a></td>
+            <td>Strong for spoken-language ID; clips are extracted speech segments from YouTube videos.</td>
+            <td>107 languages and thousands of hours.</td>
+            <td class="caution">Medium. Dataset is CC BY 4.0, but source is automatically collected YouTube speech; review before public redistribution.</td>
+            <td>Better as model-training/evaluation data than direct game audio. Labels are language-level, not always clean enough for polished rounds.</td>
+            <td class="score caution">Research backup</td>
+          </tr>
+          <tr>
+            <td><a href="https://pangloss.cnrs.fr/">Pangloss Collection</a></td>
+            <td>Excellent for immersive connected speech, narratives, and field recordings.</td>
+            <td>Strong for endangered and underdocumented languages, not necessarily the 38 current game languages.</td>
+            <td class="caution">Medium. Creative Commons terms vary by item; must inspect each record.</td>
+            <td>Use for hand-curated special rounds with transcripts/translations. Requires editorial review and careful cultural context.</td>
+            <td class="score caution">Curated expansion</td>
+          </tr>
+          <tr>
+            <td><a href="https://www.elararchive.org/">ELAR</a></td>
+            <td>Excellent where accessible; real speech, stories, rituals, interviews, and elicitation.</td>
+            <td>Great for endangered-language breadth.</td>
+            <td class="caution">Medium/high. Some access requires registration; permissions vary by collection.</td>
+            <td>Not a bulk scrape target. Use only with explicit open-access rights or direct permission.</td>
+            <td class="score caution">Editorial only</td>
+          </tr>
+          <tr>
+            <td><a href="https://accent.gmu.edu/">Speech Accent Archive</a></td>
+            <td>Strong for Accent Mode: everyone reads the same English passage.</td>
+            <td>Broad accent/native-language coverage, but not native-language speech.</td>
+            <td class="caution">Medium. Good for linking/playing; verify redistribution terms before self-hosting.</td>
+            <td>Keep as Accent Mode only. It answers “who is speaking English with what L1 influence,” not “what language is this.”</td>
+            <td class="score good">Keep for Accent Mode</td>
+          </tr>
+          <tr>
+            <td><a href="https://api.forvo.com/">Forvo API</a></td>
+            <td>Weak for this goal. Mostly pronunciations, often words or short phrases.</td>
+            <td>Large pronunciation coverage.</td>
+            <td class="bad">High. API/product terms and bulk redistribution constraints need commercial review.</td>
+            <td>Useful for fallback pronunciation buttons, not immersive rounds.</td>
+            <td class="score bad">Do not use for core game</td>
+          </tr>
+          <tr>
+            <td><a href="https://live.bible.is/">Bible.is / Bible Brain / Faith Comes By Hearing</a></td>
+            <td>Strong audio length and massive language coverage.</td>
+            <td>Very broad, including many low-resource languages.</td>
+            <td class="bad">High for this app. Bible.is terms indicate personal, non-commercial use unless separately licensed.</td>
+            <td>Could be viable only through a partnership or explicit API/license agreement. Content is also thematically narrow.</td>
+            <td class="score bad">License-first only</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2>Recommended Product Shape</h2>
+      <div class="grid">
+        <section class="card">
+          <h3>Main Game: “Real Sentences”</h3>
+          <p>
+            Replace Lingua Libre single-word clips with Common Voice validated sentence clips. Target 5-10 seconds,
+            avoid clips with obvious place names, and show the transcript only as the existing score-lowering hint.
+          </p>
+        </section>
+        <section class="card">
+          <h3>Daily Challenge</h3>
+          <p>
+            Pull from a prebuilt same-origin manifest so every daily seed is deterministic and fast. Include duration,
+            transcript, source, language metadata, speaker metadata when allowed, and attribution if required.
+          </p>
+        </section>
+        <section class="card">
+          <h3>Accent Mode</h3>
+          <p>
+            Keep the Speech Accent Archive concept, but label it explicitly as “English accent mode.” It should never be
+            mixed with native-language guessing because the audio language is always English.
+          </p>
+        </section>
+        <section class="card">
+          <h3>Parallel Sentence Mode</h3>
+          <p>
+            Use FLEURS for a mode where different languages read semantically parallel prompts. This makes comparison
+            fairer and teaches players what language rhythm sounds like independent of topic.
+          </p>
+        </section>
+      </div>
+
+      <h2>Pipeline Changes</h2>
+      <ul>
+        <li>Add a new ingestion script, probably <code>scripts/build-sentence-manifest.mjs</code>, that downloads source metadata and writes a normalized manifest.</li>
+        <li>Store audio on same-origin static hosting or R2 when the source license allows redistribution; otherwise keep remote URLs only if the source supports stable media playback.</li>
+        <li>Filter clips by <code>duration &gt;= 5 && duration &lt;= 10</code>, valid transcript, supported language, and playable media headers.</li>
+        <li>Add a “no spoiler” filter for transcripts containing country names, city names, language names, or obvious demonyms.</li>
+        <li>Normalize metadata fields: <code>url</code>, <code>source_url</code>, <code>source</code>, <code>license</code>, <code>attribution</code>, <code>dur</code>, <code>text</code>, <code>lang</code>, <code>country</code>, <code>region</code>, <code>family</code>, <code>geo</code>.</li>
+        <li>Generate an audit report with rejected counts per language so the app does not silently ship weak or empty languages.</li>
+      </ul>
+
+      <h2>Practical Next Step</h2>
+      <p>
+        Build a proof-of-concept with 8-10 Common Voice languages already present in LinguaGuessr: English, French,
+        German, Spanish, Italian, Portuguese, Dutch, Swedish, Russian, and Arabic. Pull 30 validated clips per language,
+        filter to 5-10 seconds, and compare game feel against the existing Lingua Libre manifest. If that works, expand
+        language coverage and add source-specific attribution UI only where the chosen license requires it.
+      </p>
+    </main>
+  </body>
+</html>

@@ -1,0 +1,25 @@
+{
+  "name": "linguaguessr",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Hear the world. Guess where. A listening game by Levelbrook.",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "data": "node scripts/build-manifest.mjs",
+    "data:sentences": "node scripts/build-sentence-manifest.mjs"
+  },
+  "dependencies": {
+    "@fontsource/inter": "^5.2.8",
+    "@fontsource/space-grotesk": "^5.2.10",
+    "leaflet": "^1.9.4",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.4",
+    "vite": "^6.0.7"
+  }
+}

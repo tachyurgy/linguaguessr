@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LinguaGuessr — Product, Virality & Monetization Review</title>
+<style>
+  :root{
+    --ink:#15110e; --paper:#f6f1e9; --card:#fffdf9; --line:#e3d8c7;
+    --accent:#e0431f; --accent2:#1f6fe0; --good:#1f8a4c; --warn:#b8860b; --bad:#c0392b;
+    --muted:#6b6056;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;background:var(--paper);color:var(--ink);
+    font-family:"Inter Tight",Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    line-height:1.62;-webkit-font-smoothing:antialiased;
+  }
+  code,.mono{font-family:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace}
+  .wrap{max-width:920px;margin:0 auto;padding:0 22px}
+  header.hero{
+    background:linear-gradient(160deg,#1a1410 0%,#2a1d15 60%,#3a2114 100%);
+    color:#f6f1e9;padding:64px 0 52px;border-bottom:4px solid var(--accent);
+  }
+  .kick{font-family:"JetBrains Mono",monospace;font-size:12px;letter-spacing:.22em;
+    text-transform:uppercase;color:#f0a58f;margin:0 0 14px}
+  h1{font-family:"Bricolage Grotesque","Inter Tight",sans-serif;font-weight:800;
+    font-size:clamp(30px,5.5vw,52px);line-height:1.04;margin:0 0 16px;letter-spacing:-.02em}
+  h1 .g{color:var(--accent)}
+  .sub{font-size:18px;color:#d8cbbb;max-width:680px;margin:0}
+  .meta{margin-top:26px;font-family:"JetBrains Mono",monospace;font-size:12.5px;color:#bcae9c;
+    display:flex;gap:22px;flex-wrap:wrap}
+  .meta b{color:#f6f1e9;font-weight:600}
+  h2{font-family:"Bricolage Grotesque","Inter Tight",sans-serif;font-weight:800;
+    font-size:clamp(23px,3.6vw,32px);letter-spacing:-.015em;margin:54px 0 6px;
+    padding-top:20px;border-top:1px solid var(--line)}
+  h2 .n{color:var(--accent);font-family:"JetBrains Mono",monospace;font-size:.62em;
+    margin-right:12px;vertical-align:2px}
+  h3{font-family:"Bricolage Grotesque","Inter Tight",sans-serif;font-weight:700;font-size:19px;margin:30px 0 6px}
+  p{margin:12px 0}
+  .lead{font-size:18.5px}
+  .muted{color:var(--muted)}
+  a{color:var(--accent);text-decoration:none;border-bottom:1px solid rgba(224,67,31,.3)}
+  a:hover{border-color:var(--accent)}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px 24px;margin:18px 0;
+    box-shadow:0 1px 0 rgba(0,0,0,.02)}
+  .grid{display:grid;gap:14px}
+  .g2{grid-template-columns:1fr 1fr}
+  .g3{grid-template-columns:repeat(3,1fr)}
+  @media(max-width:680px){.g2,.g3{grid-template-columns:1fr}}
+  .stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;text-align:center}
+  .stat .big{font-family:"Bricolage Grotesque",sans-serif;font-weight:800;font-size:34px;line-height:1;color:var(--accent)}
+  .stat .lab{font-size:12.5px;color:var(--muted);margin-top:7px;font-family:"JetBrains Mono",monospace;letter-spacing:.04em}
+  .tag{display:inline-block;font-family:"JetBrains Mono",monospace;font-size:11px;font-weight:600;
+    padding:3px 9px;border-radius:20px;letter-spacing:.04em;text-transform:uppercase;vertical-align:middle}
+  .t-do{background:#e6f4ec;color:var(--good);border:1px solid #b7e0c6}
+  .t-maybe{background:#fbf3da;color:var(--warn);border:1px solid #ecd9a0}
+  .t-skip{background:#fbe6e3;color:var(--bad);border:1px solid #f0c2ba}
+  .t-now{background:var(--accent);color:#fff}
+  .t-next{background:#1f6fe0;color:#fff}
+  .t-later{background:#6b6056;color:#fff}
+  blockquote{margin:20px 0;padding:14px 20px;border-left:4px solid var(--accent);
+    background:#fff7f3;border-radius:0 10px 10px 0;font-size:17px}
+  ul,ol{margin:12px 0;padding-left:22px}
+  li{margin:7px 0}
+  table{width:100%;border-collapse:collapse;margin:16px 0;font-size:14.5px}
+  th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{font-family:"JetBrains Mono",monospace;font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+  .verdict{font-weight:700}
+  .callout{border-radius:12px;padding:16px 20px;margin:18px 0;font-size:15.5px}
+  .c-key{background:#1a1410;color:#f6f1e9;border-left:4px solid var(--accent)}
+  .c-key b{color:#f0a58f}
+  .c-warn{background:#fbf3da;border:1px solid #ecd9a0}
+  .toc{font-family:"JetBrains Mono",monospace;font-size:13px;columns:2;column-gap:30px}
+  .toc a{display:block;padding:4px 0;border:0}
+  @media(max-width:680px){.toc{columns:1}}
+  .num{font-family:"JetBrains Mono",monospace;color:var(--accent);font-weight:700}
+  footer{margin:60px 0 40px;padding-top:22px;border-top:1px solid var(--line);font-size:13px;color:var(--muted);
+    font-family:"JetBrains Mono",monospace}
+  .bar{height:9px;border-radius:6px;background:#eadfce;overflow:hidden;margin:4px 0 2px}
+  .bar > i{display:block;height:100%;background:var(--accent)}
+  .pri{display:flex;gap:10px;align-items:baseline;padding:10px 0;border-bottom:1px dashed var(--line)}
+  .pri:last-child{border:0}
+  .pri .lab{flex:1}
+  .eff{font-family:"JetBrains Mono",monospace;font-size:11.5px;color:var(--muted);white-space:nowrap}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="wrap">
+    <p class="kick">Product &amp; Growth Review · Internal</p>
+    <h1>LinguaGuessr: can it get <span class="g">popular</span>, and can it <span class="g">pay</span>?</h1>
+    <p class="sub">A frank teardown of the product as it actually ships today — what would make it spread,
+      whether a paid tier is realistic, and how to keep it earning its keep as a Levelbrook showcase.</p>
+    <div class="meta">
+      <span><b>Date</b> 2026-06-02</span>
+      <span><b>Live</b> lingua.levelbrook.com</span>
+      <span><b>Corpus</b> 480 clips · 24 langs · 285 accents</span>
+      <span><b>Stack</b> Vite/React/Leaflet · CF Pages</span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+<div class="card" style="margin-top:30px">
+  <div class="toc">
+    <a href="#tldr">→ The one-paragraph verdict</a>
+    <a href="#state">→ 1. What it actually is today</a>
+    <a href="#who">→ 2. Who would need this?</a>
+    <a href="#viral">→ 3. The virality question</a>
+    <a href="#money">→ 4. The monetization question</a>
+    <a href="#corpus">→ 5. Is the corpus big enough?</a>
+    <a href="#road">→ 6. Prioritized roadmap</a>
+    <a href="#bottom">→ 7. The honest bottom line</a>
+  </div>
+</div>
+
+<h2 id="tldr">The one-paragraph verdict</h2>
+<blockquote>
+  <b>Nobody <i>needs</i> LinguaGuessr — and that's fine; nobody needs Wordle either.</b> It's a curiosity-and-identity
+  toy, and that category can absolutely go viral. But right now you've optimized away your single best viral
+  mechanic (you dropped the Daily), your most defensible and most shareable mode (Accent) is buried, and your
+  corpus is too shallow for the endless-play loop you built. The good news: the highest-value use is the one you
+  already intended — <b>a lead-gen showcase for Levelbrook</b> — and that goal needs only a few thousand of the
+  <i>right</i> people (CTOs, eng leads, recruiters), not millions. <b>Recommendation:</b> don't build a paid
+  consumer tier yet. Make it viral and free, monetize indirectly (consulting leads + contextual affiliate),
+  and treat a paid/B2B tier as a later option you unlock only if real retention shows up.
+</blockquote>
+
+<h2 id="state"><span class="n">01</span>What it actually is today</h2>
+<p class="lead">Before strategy, the honest current-state snapshot — pulled live from the deployed manifest,
+not the README (which is stale).</p>
+
+<div class="grid g3" style="margin:18px 0">
+  <div class="stat"><div class="big">480</div><div class="lab">language clips (live)</div></div>
+  <div class="stat"><div class="big">20</div><div class="lab">clips per language — flat</div></div>
+  <div class="stat"><div class="big">285</div><div class="lab">accent clips (32 langs)</div></div>
+</div>
+
+<p><b>Modes shipped:</b> Classic play in three guess styles — <b>Casual</b> (multiple choice),
+<b>Explorer</b> (pick a world region), <b>Expert</b> (drop a pin, scored by great-circle distance) — plus a
+distinct <b>Accent Mode</b>. There's replay-penalty scoring, a "show the word" hint, a speed bonus, and a
+respectful reveal screen. It's a genuinely polished weekend-scale build with a real data pipeline (YouTube →
+MLX Whisper language-verification → flat clips + manifest).</p>
+
+<div class="callout c-warn">
+  <b>Two facts that matter for everything below:</b>
+  <ul style="margin:8px 0 0">
+    <li><b>The Daily was removed</b> (git: <code>2c05947 "drop Daily"</code>). The daily-puzzle-plus-share-grid
+      is the exact mechanic that made Wordle spread. Cutting it removed your cheapest growth loop.</li>
+    <li><b>Exactly 20 clips per language.</b> Combined with the new "never repeat a clip across sessions"
+      rule, a regular player <i>exhausts a language in one sitting</i>. The endless-play promise and the
+      corpus depth are in direct conflict.</li>
+  </ul>
+</div>
+
+<h2 id="who"><span class="n">02</span>Who would actually need this?</h2>
+<p>You asked it directly — "who would need this?" The honest framing: this is <b>entertainment + identity +
+curiosity</b>, not a tool. So the question isn't "who needs it," it's "who would <i>delight</i> in it and
+<i>show their friends</i>." There are five real, reachable audiences, and they're large:</p>
+
+<table>
+  <tr><th>Audience</th><th>Size signal</th><th>Why they bite</th></tr>
+  <tr><td><b>Language learners</b></td><td>Duolingo ~100M MAU; r/languagelearning ~1.2M</td><td>Ear-training is a real gap; "name that language" scratches a skill itch.</td></tr>
+  <tr><td><b>GeoGuessr / map-game crowd</b></td><td>GeoGuessr tens of millions of plays</td><td>"GeoGuessr but for the ear" is an instantly-graspable pitch — borrowed virality.</td></tr>
+  <tr><td><b>Daily-puzzle players</b></td><td>NYT Games / Wordle-likes are a habit category</td><td>Want a 2-minute daily ritual + a score to post. <i>This is the group you cut off.</i></td></tr>
+  <tr><td><b>Linguistics / polyglot nerds</b></td><td>Langfocus 1M+ subs; Wikitongues; r/linguistics</td><td>Highly shareable, evangelical, will write threads about edge cases.</td></tr>
+  <tr><td><b>ESL teachers &amp; classrooms</b></td><td>Millions of ESL educators globally</td><td>Drop-in listening warm-up. This is also your B2B/edu wedge (§4).</td></tr>
+</table>
+
+<div class="callout c-key">
+  <b>The uncomfortable but liberating truth:</b> for your <b>actual</b> #1 goal — Levelbrook consulting leads —
+  the addressable audience that matters is tiny: the CTOs, engineering leads, and recruiters who'd hire a
+  senior Rails/Python contractor. You do not need a million players. You need <b>a few thousand of the right
+  technical people to see a tasteful, obviously-well-built demo</b> and click "Hire us." That reframes the whole
+  strategy: virality is a <i>nice-to-have multiplier</i>; credibility with technical buyers is the <i>core KPI</i>.
+</div>
+
+<h2 id="viral"><span class="n">03</span>The virality question</h2>
+<p class="lead">How do you make it actually popular? Viral daily games aren't lucky — they share a small set of
+mechanics. You're missing most of them. Here's the diagnosis and the plays, in priority order.</p>
+
+<h3>① Bring back the Daily — with a spoiler-free share card <span class="tag t-now">do first</span></h3>
+<p>This is the single highest-leverage change and you already had it. The Wordle loop is: <i>one puzzle
+everyone gets → finite, so it ends → an emoji grid you can paste anywhere without spoiling it.</i> Rebuild it as
+5 seeded rounds shared by everyone that day, then auto-generate a copy-paste card:</p>
+<div class="card mono" style="font-size:13px;background:#1a1410;color:#f6f1e9;border:0">
+🌍 LinguaGuessr #128<br>
+🦻 5/5 · 1,420 pts · 🔥 streak 9<br>
+🟩🟩🟨🟩🟩<br>
+Can you beat me by ear? → lingua.levelbrook.com
+</div>
+<p class="muted">Every shared card is a free, branded impression that links straight back. This is the cheapest
+distribution you will ever get, and it's a few hours of work since the seeding logic existed before.</p>
+
+<h3>② Promote Accent Mode to the headline — it's your unfair advantage <span class="tag t-now">do first</span></h3>
+<p>"Guess the language" is a crowded-ish space. "Guess the <b>accent</b> / where this person is from" is a
+<b>proven, explosively viral short-form genre</b> (TikTok/Reels are full of accent-guessing). It's also
+<b>more corpus-efficient</b> (within-language variation is cheap) and <b>more defensible</b> (nobody else has a
+clean accent-ID game). You have 285 accent clips already and it's buried as a secondary mode. <b>Lead with it.</b>
+This is the feature most likely to produce a clip that actually pops off.</p>
+
+<h3>③ Build the collection loop — a "languages Pokédex" <span class="tag t-next">next</span></h3>
+<p>The strongest retention mechanic for a content-finite game is <b>collection/completion</b>. Give players a
+profile that tracks "languages you've correctly ID'd by ear" — 24 → 38 → 100 badges to fill, accuracy per
+language, a 🦻 Golden-Ear wall. People finish collections. People screenshot collections.</p>
+
+<h3>④ Friend challenges &amp; a weekly leaderboard <span class="tag t-next">next</span></h3>
+<p>"Send a friend the exact 5 rounds I just played" is direct, 1-to-1, high-converting distribution. A weekly
+global leaderboard adds a recurring reason to return. Both are zero-backend-friendly (URL-seeded + localStorage,
+optional CF KV for leaderboard).</p>
+
+<h3>⑤ The launch channels (concrete, in order) <span class="tag t-next">next</span></h3>
+<table>
+  <tr><th>Channel</th><th>Angle</th><th>Why it fits</th></tr>
+  <tr><td><b>Show HN</b></td><td>"Zero-backend listening game; YouTube→Whisper language-ID pipeline at the edge"</td><td>HN loves the build story — <b>and it routes technical buyers to Levelbrook.</b> Best single move for the consulting goal.</td></tr>
+  <tr><td><b>Reddit</b></td><td>r/languagelearning, r/geoguessr, r/linguistics, r/coolguides</td><td>Native audiences; post the accent mode, not the pitch.</td></tr>
+  <tr><td><b>TikTok / Reels / Shorts</b></td><td>"Can you guess this accent?" screen-recorded rounds</td><td>The format <i>is</i> the content; accent mode is tailor-made.</td></tr>
+  <tr><td><b>Language YouTubers</b></td><td>Langfocus, Xiaomanyc, Days of French'n'Swedish</td><td>One creator playing it on camera = thousands of qualified players.</td></tr>
+  <tr><td><b>Product Hunt</b></td><td>Polished daily-game launch</td><td>Good for a credibility bump + backlinks.</td></tr>
+</table>
+
+<h2 id="money"><span class="n">04</span>The monetization question</h2>
+<p class="lead">You asked three things: keep it as a consulting ad? Add a paid tier? Can a paid tier feasibly
+work? Here's each model, scored honestly.</p>
+
+<table>
+  <tr><th>Model</th><th>Verdict</th><th>Reality check</th></tr>
+  <tr>
+    <td><b>Consulting lead-gen</b><br>(your original plan)</td>
+    <td><span class="tag t-do">keep — #1</span></td>
+    <td class="verdict">Highest ROI by far. One Rails C2C contract dwarfs years of any consumer revenue this could earn. The math only needs a handful of the right eyeballs. <b>This stays the primary business model.</b> Just make the CTA sharper (see below).</td>
+  </tr>
+  <tr>
+    <td><b>Contextual affiliate</b><br>(italki, Babbel, Pimsleur, Memrise)</td>
+    <td><span class="tag t-do">do — easy win</span></td>
+    <td>On the reveal screen ("This was <b>Tamil</b> — want to learn it? → italki tutors"), affiliate links are <i>genuinely helpful</i>, on-brand, and the only near-term cash that doesn't cheapen the demo. Low effort, contextual, removable. Realistic but modest.</td>
+  </tr>
+  <tr>
+    <td><b>B2B / EDU licensing</b><br>(white-label widget for ESL schools)</td>
+    <td><span class="tag t-maybe">explore — real upside</span></td>
+    <td>The most "consulting-shaped" path: an embeddable listening-game widget sold to language schools/ESL platforms. Aligns with Levelbrook (you build software). This is where a <i>real</i> product business could live if it gets traction.</td>
+  </tr>
+  <tr>
+    <td><b>Paid consumer tier</b><br>(unlimited play, stats, accent packs, no-ads)</td>
+    <td><span class="tag t-maybe">not yet</span></td>
+    <td class="verdict">Feasible mechanically, marginal economically <i>at your scale</i>. A niche B2C subscription needs tens of thousands of DAU before it clears a few hundred dollars/month. Build it <b>only after</b> retention data proves people come back. Premature paywalls also kill virality.</td>
+  </tr>
+  <tr>
+    <td><b>Display ads</b></td>
+    <td><span class="tag t-skip">skip</span></td>
+    <td>Low CPM, needs scale you don't have, and — fatally — ad clutter <b>directly undermines the "we build clean software" message</b> you're selling to CTOs. Wrong fit for a consulting showcase.</td>
+  </tr>
+</table>
+
+<h3>Can a paid tier feasibly work? — the straight answer</h3>
+<p>Yes, but probably not <i>worth it</i> as a first move, and here's the napkin math. Niche freemium games convert
+roughly <b>1–3%</b> of active users. Even optimistically: 20,000 DAU × 2% × $4/mo ≈ <b>$1,600/mo</b> gross —
+and getting to 20k DAU is the hard part most games never reach. Compare that to a single consulting engagement.
+<b>The opportunity cost of building/maintaining billing, auth, and a paywall is higher than the revenue</b> until
+you have a proven retention curve. So: instrument retention now, gate nothing yet, and revisit a paid tier only
+if D7 retention and DAU justify it.</p>
+
+<div class="callout c-key">
+  <b>Recommended monetization stack:</b> <b>(1)</b> Consulting lead-gen stays primary — sharpen the CTA.
+  <b>(2)</b> Add contextual affiliate on the reveal screen this month — the only easy near-term cash.
+  <b>(3)</b> Keep B2B/edu licensing as the real upside to pursue if traction appears.
+  <b>(4)</b> Hold the paid consumer tier until retention data earns it. <b>Ads: never.</b>
+</div>
+
+<h3>Make the consulting funnel actually convert</h3>
+<p>The about/pitch page is good, but the funnel leaks. Tighten it:</p>
+<ul>
+  <li><b>Add a persistent, tasteful "Built by Levelbrook" chip</b> on the game screen itself — not just a
+    separate About page most players never open. The demo only sells if buyers <i>connect the polish to the brand.</i></li>
+  <li><b>Put the pitch at the moment of delight</b> — on a great reveal or a Golden Ear, a one-line "Like how this
+    is built? We build software like this for teams → Hire us." Strike when they're impressed.</li>
+  <li><b>Track the click.</b> You can't optimize lead-gen you don't measure; add a simple event on every "Hire us."</li>
+</ul>
+
+<h2 id="corpus"><span class="n">05</span>Is the corpus big enough?</h2>
+<p class="lead">You suspected it isn't, and you're right — but the fix depends on which game you're really building.</p>
+
+<p>The depth, per language, today:</p>
+<div class="card">
+  <div style="display:flex;justify-content:space-between;font-size:13px"><span class="mono">Daily (5 rounds/day)</span><span class="mono" style="color:var(--good)">480 clips ≈ months of content ✓</span></div>
+  <div class="bar"><i style="width:92%"></i></div>
+  <div style="display:flex;justify-content:space-between;font-size:13px;margin-top:14px"><span class="mono">Endless Classic + never-repeat</span><span class="mono" style="color:var(--bad)">20/lang ≈ exhausted in one sitting ✗</span></div>
+  <div class="bar"><i style="width:18%;background:var(--bad)"></i></div>
+</div>
+
+<p><b>Diagnosis:</b> 20 clips/language is plenty for a <i>daily</i> game and far too thin for the <i>endless,
+no-repeat</i> game you actually shipped. The two design choices fight each other. Targets that fix it:</p>
+<ul>
+  <li><b>~50–100 clips/language</b> for a satisfying endless mode (you're at 20).</li>
+  <li><b>More languages</b> — 24 is fine to launch; growth to 40–60 widens the collection loop and the
+    "did they have <i>my</i> language?" share trigger.</li>
+  <li>Your active YouTube corpus builder is the right engine — keep it running. <b>Depth before breadth:</b>
+    deepen the 24 you have before chasing rare languages.</li>
+</ul>
+
+<div class="callout c-warn">
+  <b>One real risk to name honestly:</b> the corpus moved from Lingua Libre / Wikimedia (cleanly Creative-Commons)
+  to <b>YouTube excerpts</b> ("used as short excerpts for language identification"). Short-excerpt fair-use is a
+  <i>gray area</i>, and a consulting brand that sells "we do things right" is exactly the brand that doesn't want a
+  takedown or a licensing question on its flagship demo. <b>Mitigations:</b> keep clips short (you do), attribute
+  sources, and seriously consider keeping a clean CC-licensed core (Lingua Libre, Mozilla Common Voice — which is
+  CC0 and <i>built for exactly this</i>) so the showcase is legally unimpeachable. Common Voice alone could give
+  you the depth you need without the gray area.</li>
+</div>
+
+<p class="muted"><b>Reframe:</b> the corpus question gets much easier if Accent Mode leads. Within-language accent
+variation is abundant and cheap to collect, and it sidesteps the "I need 100 clips of 60 languages" treadmill.
+The most viral mode is also the least corpus-hungry — lean into that.</p>
+
+<h2 id="road"><span class="n">06</span>Prioritized roadmap</h2>
+<p class="lead">Sequenced by leverage-per-effort. Do the "Now" block before anything else.</p>
+
+<div class="card">
+  <h3 style="margin-top:0">Now — this week <span class="tag t-now">highest leverage</span></h3>
+  <div class="pri"><span class="lab">Bring back the <b>Daily</b> + spoiler-free emoji share card</span><span class="eff">~hours · the viral loop</span></div>
+  <div class="pri"><span class="lab">Promote <b>Accent Mode</b> to the headline / first-run experience</span><span class="eff">low · biggest viral upside</span></div>
+  <div class="pri"><span class="lab">Add persistent <b>"Built by Levelbrook"</b> chip + delight-moment CTA, with click tracking</span><span class="eff">low · the actual business model</span></div>
+  <div class="pri"><span class="lab">Add basic <b>retention analytics</b> (DAU, D1/D7, mode usage)</span><span class="eff">low · unlocks every later decision</span></div>
+</div>
+
+<div class="card">
+  <h3 style="margin-top:0">Next — this month <span class="tag t-next">build the loops</span></h3>
+  <div class="pri"><span class="lab">Deepen corpus to <b>~50/language</b>; add a clean CC core (Common Voice)</span><span class="eff">med · fixes endless mode + legal</span></div>
+  <div class="pri"><span class="lab"><b>Languages Pokédex</b> profile (collection/completion loop)</span><span class="eff">med · retention</span></div>
+  <div class="pri"><span class="lab"><b>Contextual affiliate</b> links on reveal (italki/Babbel)</span><span class="eff">low · first real cash</span></div>
+  <div class="pri"><span class="lab"><b>Show HN</b> + Reddit + 3–5 TikTok accent clips</span><span class="eff">med · the launch</span></div>
+</div>
+
+<div class="card">
+  <h3 style="margin-top:0">Later — only if traction appears <span class="tag t-later">conditional</span></h3>
+  <div class="pri"><span class="lab">Friend challenges + weekly leaderboard (CF KV)</span><span class="eff">med</span></div>
+  <div class="pri"><span class="lab"><b>B2B/EDU</b> embeddable widget — pitch one ESL platform</span><span class="eff">high · real upside</span></div>
+  <div class="pri"><span class="lab">Paid consumer tier — <b>only</b> if D7 retention &amp; DAU justify it</span><span class="eff">high · gated on data</span></div>
+</div>
+
+<h2 id="bottom"><span class="n">07</span>The honest bottom line</h2>
+<blockquote>
+  LinguaGuessr is a <b>genuinely well-made toy</b> that's currently working against its own growth: it cut the
+  Daily (its viral engine), buries Accent Mode (its most viral and most defensible feature), and built an
+  endless mode its corpus can't feed. None of that is hard to fix, and the fixes are cheap.
+  <br><br>
+  On money: <b>stop thinking of it as a thing that should earn revenue directly.</b> Its job is to make Levelbrook
+  look like a shop that ships clean, modern software — and on that axis one consulting lead pays for everything.
+  Make it free, make it viral, add contextual affiliate as a small bonus, and keep a paid/B2B tier in your back
+  pocket for if (and only if) it gets real, sticky traffic. The best single move that serves <i>both</i>
+  popularity and money is the same move: <b>a strong Show HN of the accent game, with Levelbrook one click away.</b>
+</blockquote>
+
+<footer>
+  LinguaGuessr — Product, Virality &amp; Monetization Review · 2026-06-02 · internal strategy doc<br>
+  Grounded in live manifest (480 clips / 24 langs / 285 accents) + repo state. A Levelbrook property.
+</footer>
+
+</div>
+</body>
+</html>

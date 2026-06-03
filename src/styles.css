@@ -1,0 +1,508 @@
+:root{
+  --bg:#0f1322; --bg2:#161c30; --panel:#1c2440; --panel2:#252e4e;
+  --line:#2c3760; --line2:#3a467a;
+  --ink:#f1f5ff; --muted:#a6b2d4; --faint:#7986ac;
+  --accent:#5ef2c0;       /* sonar mint */
+  --accent2:#7cc7ff;      /* sky */
+  --warm:#ffc26b;         /* amber */
+  --pink:#ff8fb1;         /* playful coral */
+  --bad:#ff6b81;
+  --good:#5ef2c0;
+  --shadow:0 22px 60px -20px rgba(2,5,20,.75);
+  --r:18px;
+  --spring:cubic-bezier(.34,1.56,.64,1);
+}
+*{box-sizing:border-box}
+html,body,#root{height:100%}
+body{
+  margin:0;background:
+    radial-gradient(1100px 620px at 82% -8%, rgba(124,199,255,.20), transparent 58%),
+    radial-gradient(1000px 560px at 8% 0%, rgba(255,143,177,.13), transparent 55%),
+    radial-gradient(1200px 700px at 50% 118%, rgba(94,242,192,.16), transparent 60%),
+    var(--bg);
+  background-attachment:fixed;
+  color:var(--ink);
+  font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  -webkit-font-smoothing:antialiased; line-height:1.55;
+  overflow-x:hidden;
+}
+.display{font-family:"Space Grotesk",Inter,sans-serif;letter-spacing:-.01em}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+.linklike{background:none;border:none;padding:0;font:inherit;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+a{color:var(--accent2);text-decoration:none}
+a:hover{text-decoration:underline}
+
+.app{min-height:100dvh;display:flex;flex-direction:column}
+.narrow{width:100%;max-width:720px;margin:0 auto;padding:0 20px}
+
+/* In a game the screen is locked to the viewport and the STAGE scrolls internally
+   (never the page). That's what lets the action button stick to the bottom and
+   stay in view — so you never scroll the page to find "Next round". */
+.app-game{height:100dvh;overflow:hidden}
+.app-game .stage{flex:1 1 auto;min-height:0;overflow-y:auto}
+
+/* ---------- immersive game stage (GeoGuessr-style drop-in) ---------- */
+.stage{position:relative;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  min-height:calc(100dvh - 70px);padding:6px clamp(16px,4vw,30px) 22px;overflow-y:auto}
+
+/* Desktop reveal: fill the width as two columns (results | answer map) — no scroll,
+   no wasted gutters. The big audio hero is gone on reveal, so this fits the viewport. */
+@media(min-width:981px){
+  /* Guess phase, map mode: two columns — listen on the left, a BIG map on the
+     right that fills most of the viewport. Replaces the small corner map. */
+  .stage.has-map:not(.revealing){flex-direction:row;align-items:center;justify-content:center;
+    gap:clamp(20px,3vw,48px);padding:16px clamp(20px,4vw,52px)}
+  .stage.has-map:not(.revealing) .stage-inner{flex:0 1 420px;max-width:420px;margin:0}
+  .stage.has-map:not(.revealing) .map-overlay{position:static;flex:1 1 62%;max-width:820px;width:auto;margin:0;animation:none}
+  .stage.has-map:not(.revealing) .map-overlay .mapwrap{height:min(80vh,720px)}
+
+  .stage.has-map.revealing{flex-direction:row;align-items:center;justify-content:center;
+    gap:clamp(18px,2.6vw,42px);padding:16px clamp(20px,4vw,52px)}
+  .stage.has-map.revealing .stage-inner{flex:1 1 55%;max-width:700px;margin:0;gap:12px}
+  .stage.has-map.revealing .map-overlay{position:static;flex:1 1 45%;max-width:620px;width:auto;margin:0;animation:none}
+  .stage.has-map.revealing .map-overlay .mapwrap{height:min(76vh,620px)}
+  .stage.has-map.revealing .reveal{margin:0;padding:20px 24px}
+  .stage.has-map.revealing .said-text{font-size:clamp(17px,1.4vw,20px)}
+  .stage.has-map.revealing .next-btn{margin-top:2px}
+}
+.stage-inner{width:100%;max-width:540px;display:flex;flex-direction:column;align-items:stretch;gap:14px}
+.stage-inner .player{margin:0;padding:clamp(16px,3.4vh,30px) 22px;background:linear-gradient(180deg,rgba(28,36,64,.80),rgba(20,26,46,.80));
+  backdrop-filter:blur(16px) saturate(1.2);-webkit-backdrop-filter:blur(16px) saturate(1.2);border-color:var(--line2)}
+/* In-game the play button scales with viewport height so the player + the
+   answer controls always fit one screen — no scroll to reach the choices. */
+.stage-inner .playbtn{width:clamp(82px,14vh,118px);height:clamp(82px,14vh,118px);font-size:clamp(34px,6vh,46px)}
+.stage-inner .round-label{margin-bottom:clamp(8px,1.6vh,16px)}
+.stage-inner .bars{height:clamp(18px,3.2vh,30px);margin-top:clamp(10px,2vh,18px)}
+.stage-inner .replay{margin-top:clamp(12px,2.4vh,22px)}
+.stage-inner .hint{margin-top:clamp(7px,1.4vh,12px)}
+.stage-inner .progress{margin:0}
+.stage-inner .reveal{margin-top:2px}
+.showword{text-align:center;margin:-2px 0 0}
+
+/* The forward button is ALWAYS one tap away: it sticks to the bottom of the
+   stage, so even when a long reveal would overflow you never scroll to find it. */
+.next-btn{position:sticky;bottom:max(8px,env(safe-area-inset-bottom));z-index:6;
+  box-shadow:0 10px 34px -8px rgba(2,5,20,.7)}
+
+/* Desktop: Casual/Explorer (no map) use the wasted side gutters as a two-column
+   guess layout — player on the left, the answers on the right, both centred and
+   filling the viewport so the choices never fall below the fold. */
+@media(min-width:981px){
+  .stage:not(.has-map):not(.revealing) .stage-inner{max-width:880px;display:grid;
+    grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:center;
+    column-gap:clamp(26px,3.2vw,48px);row-gap:12px}
+  /* progress spans the top; player sits left, the answers right — same row,
+     both vertically centred so nothing falls into a corner. */
+  .stage:not(.has-map):not(.revealing) .progress{grid-column:1 / -1;grid-row:1}
+  .stage:not(.has-map):not(.revealing) .player{grid-column:1;grid-row:2}
+  .stage:not(.has-map):not(.revealing) .input-panel{grid-column:2;grid-row:2;margin-top:0;align-self:center}
+  .stage:not(.has-map):not(.revealing) .choices{grid-template-columns:1fr 1fr;gap:12px}
+  .stage:not(.has-map):not(.revealing) .choice{padding:18px 16px;font-size:17px}
+}
+
+/* the map lives in a corner panel — it's the answer tool, not the centerpiece */
+.map-overlay{position:fixed;right:clamp(12px,2vw,24px);bottom:clamp(12px,2vw,24px);z-index:40;
+  width:clamp(300px,31vw,430px);display:flex;flex-direction:column;gap:10px;
+  animation:pop .4s var(--spring) both}
+.map-overlay .mapwrap{height:clamp(220px,30vh,330px);margin-top:0;box-shadow:var(--shadow)}
+.map-overlay.revealed .mapwrap{height:clamp(260px,38vh,400px)}
+.map-overlay .btn{box-shadow:var(--shadow)}
+
+@media(max-width:980px){
+  .stage{justify-content:flex-start;min-height:0;padding-top:4px}
+  .map-overlay{position:static;width:100%;max-width:620px;margin:14px auto 0;animation:none}
+  .map-overlay .mapwrap{height:58vh}
+  .map-overlay.revealed .mapwrap{height:46vh}
+  /* Tighten the reveal so the words + answer + fact + the sticky Next button
+     all fit one phone screen — no scroll between rounds. */
+  .reveal{padding:18px 18px}
+  .said{margin:4px 0 12px;padding:13px 15px}
+  .said-text{font-size:clamp(16px,4vw,20px);line-height:1.35}
+  .factbox{margin:10px 0;padding:11px 14px}
+  .answerline{margin:2px 0 4px}
+  .answerline-flag{font-size:38px}
+  .reveal .ans{font-size:24px}
+}
+
+/* Short viewports (small phones, landscape): drop the decorative equalizer and
+   tighten the player so all four choices still fit one screen during the guess. */
+@media(max-height:740px){
+  .stage-inner{gap:10px}
+  .stage-inner .bars{display:none}
+  .stage-inner .player{padding:14px 20px}
+  .stage-inner .round-label{margin-bottom:8px}
+  .stage-inner .replay{margin-top:12px}
+  .stage-inner .hint{margin-top:6px;font-size:12px}
+}
+
+/* ---------- top bar ---------- */
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:14px clamp(16px,4vw,30px) 8px}
+.menubtn{padding:9px 18px;border-radius:11px;background:var(--panel);border:1px solid var(--line2);
+  font-weight:700;font-size:14px;transition:transform .18s var(--spring),border-color .18s,background .18s}
+.menubtn:hover{transform:translateY(-2px);border-color:var(--accent);background:var(--panel2)}
+.menubtn:active{transform:scale(.96)}
+
+/* ---------- menu modal (mode picker — replaces the old home screen) ---------- */
+/* Daily Challenge hero — the Wordle loop, front and center above free play. */
+.daily-hero{display:flex;align-items:center;gap:14px;width:100%;text-align:left;
+  padding:16px 18px;margin:16px 0 4px;border-radius:16px;cursor:pointer;
+  background:linear-gradient(120deg,rgba(94,242,192,.16),rgba(124,199,255,.12),var(--panel));
+  border:1px solid var(--line2);transition:transform .18s var(--spring),border-color .18s,box-shadow .18s}
+.daily-hero:hover{transform:translateY(-2px);border-color:var(--accent);box-shadow:0 14px 32px -18px rgba(94,242,192,.5)}
+.daily-hero.on{border-color:var(--accent)}
+.daily-hero.done{background:linear-gradient(120deg,rgba(255,194,107,.14),var(--panel))}
+.dh-cal{font-size:27px;width:50px;height:50px;flex:none;display:grid;place-items:center;
+  border-radius:14px;background:var(--bg2);border:1px solid var(--line2)}
+.dh-text{display:flex;flex-direction:column;flex:1;min-width:0}
+.dh-title{font-weight:800;font-size:17px;display:flex;align-items:center}
+.dh-badge{font-size:11px;font-weight:700;letter-spacing:.04em;padding:2px 9px;border-radius:999px;
+  background:rgba(94,242,192,.18);color:var(--accent);margin-left:9px}
+.dh-sub{color:var(--muted);font-size:12.5px;margin-top:2px;line-height:1.35}
+.daily-hero.done .dh-sub{color:var(--warm)}
+.dh-go{font-size:20px;color:var(--accent);flex:none;transition:transform .18s var(--spring)}
+.daily-hero:hover .dh-go{transform:translateX(3px)}
+.menu-or{display:flex;align-items:center;gap:12px;margin:16px 0 4px;color:var(--faint);
+  font-size:11.5px;text-transform:uppercase;letter-spacing:.1em}
+.menu-or::before,.menu-or::after{content:"";flex:1;height:1px;background:var(--line)}
+.menu-modes{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin:14px 0 4px}
+@media(max-width:480px){.menu-modes{grid-template-columns:1fr}}
+.menu-mode{display:flex;align-items:center;gap:12px;text-align:left;padding:13px 14px;border-radius:14px;
+  background:var(--panel);border:1px solid var(--line);transition:transform .18s var(--spring),border-color .18s,background .18s}
+.menu-mode:hover{transform:translateY(-2px);border-color:var(--accent2);background:var(--panel2)}
+.menu-mode.on{border-color:var(--accent);background:linear-gradient(120deg,rgba(94,242,192,.15),var(--panel))}
+.mm-emoji{font-size:23px;width:44px;height:44px;display:grid;place-items:center;border-radius:12px;background:var(--bg2);border:1px solid var(--line);flex:none}
+.mm-text{display:flex;flex-direction:column}
+.mm-t{font-weight:700;font-size:16px}
+.mm-d{color:var(--muted);font-size:12.5px;margin-top:1px;line-height:1.35}
+.menu-foot{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:16px;font-size:14px}
+.menu-foot .linklike{color:var(--accent2)}
+.dotsep{color:var(--faint)}
+.brand{display:flex;align-items:center;gap:9px;font-weight:700;font-size:19px;cursor:pointer}
+.brand .globe{font-size:22px;animation:spin 22s linear infinite;display:inline-block}
+@keyframes spin{to{transform:rotate(360deg)}}
+.brand b{color:var(--accent)}
+.topnav{display:flex;gap:6px;align-items:center}
+/* The flywheel CTA — visible on every view, routes players to the consulting site. */
+.hire{padding:9px 16px;border-radius:11px;font-weight:800;font-size:14px;white-space:nowrap;
+  color:#06281f;background:linear-gradient(120deg,var(--accent),#49d9a8);border:1px solid var(--accent);
+  box-shadow:0 2px 14px rgba(94,242,192,.28);transition:transform .18s var(--spring),box-shadow .18s,filter .18s}
+.hire:hover{transform:translateY(-2px);filter:brightness(1.05);box-shadow:0 4px 20px rgba(94,242,192,.42)}
+.hire:active{transform:scale(.96)}
+@media(max-width:430px){.hire{padding:8px 12px;font-size:13px}}
+.iconbtn{width:38px;height:38px;border-radius:11px;display:grid;place-items:center;font-size:17px;
+  background:var(--panel);border:1px solid var(--line);transition:transform .18s var(--spring),background .18s}
+.iconbtn:hover{transform:translateY(-2px);background:var(--panel2)}
+.iconbtn:active{transform:scale(.92)}
+
+/* ---------- generic ---------- */
+.card{background:linear-gradient(180deg,var(--panel),var(--bg2));border:1px solid var(--line);
+  border-radius:var(--r);box-shadow:var(--shadow)}
+.center{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;text-align:center}
+.muted{color:var(--muted)} .faint{color:var(--faint)}
+.fadein{animation:fade .5s ease both}
+@keyframes fade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.pop{animation:pop .45s var(--spring) both}
+@keyframes pop{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:scale(1)}}
+
+/* ---------- home ---------- */
+.hero{padding:34px 0 8px}
+.hero h1{font-size:clamp(40px,9vw,64px);line-height:.98;margin:0 0 14px;font-weight:700}
+.hero h1 .g{background:linear-gradient(120deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.hero p{font-size:18px;color:var(--muted);max-width:30ch;margin:0 auto 4px}
+
+.modes{display:flex;flex-direction:column;gap:13px;margin:26px 0}
+.mode{display:flex;align-items:center;gap:16px;text-align:left;padding:18px 20px;border-radius:var(--r);
+  background:var(--panel);border:1px solid var(--line);transition:transform .2s var(--spring),border-color .2s,background .2s}
+.mode:hover{transform:translateY(-3px) scale(1.01);border-color:var(--line2);background:var(--panel2)}
+.mode:active{transform:scale(.99)}
+.mode.primary{border-color:rgba(94,242,192,.45);background:linear-gradient(100deg,rgba(94,242,192,.12),var(--panel))}
+.mode .emoji{font-size:30px;width:52px;height:52px;display:grid;place-items:center;border-radius:14px;background:var(--bg2);border:1px solid var(--line);flex:none}
+.mode .t{font-weight:700;font-size:18px}
+.mode .d{color:var(--muted);font-size:14px;margin-top:2px}
+.mode .go{margin-left:auto;color:var(--faint);font-size:22px;transition:transform .2s var(--spring)}
+.mode:hover .go{transform:translateX(4px);color:var(--accent)}
+.badge{font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:3px 9px;border-radius:999px;
+  background:rgba(94,242,192,.15);color:var(--accent);margin-left:8px;vertical-align:middle}
+.done-chip{font-size:12px;color:var(--warm);font-weight:600}
+
+/* difficulty pills */
+.seg{display:flex;gap:8px;justify-content:center;margin:6px 0 2px;flex-wrap:wrap}
+.seg button{padding:9px 15px;border-radius:999px;background:var(--panel);border:1px solid var(--line);
+  font-weight:600;font-size:14px;color:var(--muted);transition:.18s var(--spring)}
+.seg button.on{background:var(--accent);color:#06281f;border-color:var(--accent)}
+.seg button:not(.on):hover{transform:translateY(-2px);color:var(--ink)}
+
+/* ---------- game ---------- */
+.progress{display:flex;align-items:center;gap:10px;margin:6px 0 2px}
+.dots{display:flex;gap:7px}
+.dot{width:10px;height:10px;border-radius:50%;background:var(--line2);transition:.3s var(--spring)}
+.dot.done{background:var(--accent)} .dot.cur{background:var(--accent2);transform:scale(1.35)}
+.score-now{margin-left:auto;font-weight:700;font-variant-numeric:tabular-nums}
+.score-now span{color:var(--muted);font-weight:500;font-size:13px}
+
+.player{align-items:center;text-align:center;padding:34px 22px 30px;margin:18px 0}
+.round-label{color:var(--faint);font-size:13px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:16px}
+.playbtn{width:118px;height:118px;border-radius:50%;display:grid;place-items:center;font-size:46px;color:#06281f;
+  background:radial-gradient(circle at 35% 30%,#9dffe0,var(--accent));border:none;position:relative;
+  box-shadow:0 14px 40px -8px rgba(94,242,192,.5);transition:transform .2s var(--spring)}
+.playbtn:hover{transform:scale(1.05)} .playbtn:active{transform:scale(.94)}
+.playbtn.playing{animation:breathe 1.4s ease-in-out infinite}
+@keyframes breathe{0%,100%{box-shadow:0 14px 40px -8px rgba(94,242,192,.5)}50%{box-shadow:0 14px 60px 0 rgba(94,242,192,.85)}}
+.ring{position:absolute;inset:-6px;border-radius:50%;border:2px solid var(--accent);opacity:0}
+.playing .ring{animation:sonar 1.6s ease-out infinite}
+.playing .ring.r2{animation-delay:.5s}.playing .ring.r3{animation-delay:1s}
+@keyframes sonar{0%{transform:scale(1);opacity:.7}100%{transform:scale(1.7);opacity:0}}
+
+.bars{display:flex;gap:4px;align-items:flex-end;height:30px;margin-top:18px}
+.bars i{width:4px;background:var(--accent);border-radius:3px;height:8px;opacity:.5}
+.bars.on i{animation:eq .9s ease-in-out infinite}
+.bars i:nth-child(2){animation-delay:.1s}.bars i:nth-child(3){animation-delay:.2s}
+.bars i:nth-child(4){animation-delay:.3s}.bars i:nth-child(5){animation-delay:.15s}
+.bars i:nth-child(6){animation-delay:.25s}.bars i:nth-child(7){animation-delay:.05s}
+@keyframes eq{0%,100%{height:8px}50%{height:30px}}
+
+.replay{margin-top:22px;display:inline-flex;align-items:center;gap:9px;padding:11px 20px;border-radius:999px;
+  background:var(--panel2);border:1px solid var(--line2);font-weight:600;transition:.18s var(--spring)}
+.replay:hover{transform:translateY(-2px);border-color:var(--accent)}
+.replay:active{transform:scale(.96)}
+.replay .cost{color:var(--warm);font-size:13px}
+.hint{color:var(--faint);font-size:13px;margin-top:12px}
+
+/* report bad audio — discreet flag under the player */
+.report-audio{display:block;margin:10px auto 0;color:var(--faint);font-size:12.5px;
+  text-decoration:none;opacity:.8;transition:.15s var(--spring)}
+button.report-audio{text-underline-offset:3px;text-decoration:underline dotted}
+button.report-audio:hover:not(:disabled){color:var(--muted);opacity:1}
+button.report-audio:disabled{cursor:default;opacity:.6}
+.report-audio.done{opacity:1;color:var(--accent2);cursor:default}
+
+/* choices */
+.choices{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-top:6px}
+@media(max-width:480px){.choices{grid-template-columns:1fr}}
+.choice{padding:16px;border-radius:14px;background:var(--panel);border:1px solid var(--line);
+  font-weight:600;font-size:16px;text-align:center;transition:.16s var(--spring)}
+.choice:hover{transform:translateY(-2px);border-color:var(--accent2)}
+.choice:active{transform:scale(.97)}
+.choice.correct{background:rgba(94,242,192,.18);border-color:var(--accent);color:#bfffe9}
+.choice.wrong{background:rgba(255,107,129,.16);border-color:var(--bad)}
+.choice:disabled{cursor:default}
+
+/* regions grid */
+.regions{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-top:6px}
+.region{padding:16px;border-radius:14px;background:var(--panel);border:1px solid var(--line);font-weight:600;transition:.16s var(--spring)}
+.region:hover{transform:translateY(-2px);border-color:var(--accent2)}
+.region.correct{background:rgba(94,242,192,.18);border-color:var(--accent)}
+.region.wrong{background:rgba(255,107,129,.16);border-color:var(--bad)}
+
+/* map */
+.mapwrap{height:320px;border-radius:var(--r);overflow:hidden;border:1px solid var(--line);margin-top:6px;position:relative}
+/* In the wide two-column layout the map fills its column and roughly the viewport. */
+.map-col .mapwrap{height:clamp(420px,68vh,660px);margin-top:0}
+@media(max-width:880px){.map-col .mapwrap{height:clamp(300px,46vh,420px)}}
+.leaflet-container{background:#0a0e14;font-family:inherit}
+.pin{font-size:26px;filter:drop-shadow(0 3px 5px rgba(0,0,0,.6))}
+
+/* primary action button */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;padding:15px 26px;border-radius:14px;
+  font-weight:700;font-size:16px;background:linear-gradient(120deg,var(--accent),#49d9a8);color:#06281f;
+  transition:transform .18s var(--spring),filter .18s;width:100%}
+.btn:hover{transform:translateY(-2px);filter:brightness(1.05)}
+.btn:active{transform:scale(.98)}
+.btn:disabled{opacity:.4;cursor:default;transform:none}
+.btn.ghost{background:var(--panel);color:var(--ink);border:1px solid var(--line2)}
+.btn.ghost:hover{background:var(--panel2)}
+
+/* reveal */
+.reveal{padding:24px 22px;margin-top:16px;text-align:center}
+.reveal .res{font-size:14px;text-transform:uppercase;letter-spacing:.1em;font-weight:700;margin-bottom:6px}
+.reveal .res.hit{color:var(--accent)} .reveal .res.miss{color:var(--bad)}
+
+/* HERO of the reveal: the actual words the speaker said. */
+.said{margin:6px 0 18px;padding:16px 18px;border-radius:14px;text-align:left;
+  background:linear-gradient(120deg,rgba(94,242,192,.10),rgba(124,199,255,.07));
+  border:1px solid var(--line2);position:relative}
+.said-label{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:7px}
+.said-text{margin:0;font-family:"Space Grotesk",Inter,sans-serif;font-weight:600;
+  font-size:clamp(18px,2.4vw,23px);line-height:1.4;color:var(--ink)}
+
+/* language + flag, secondary to the words now */
+.answerline{display:flex;align-items:center;justify-content:center;gap:14px;text-align:left;margin:4px 0 6px}
+.answerline-flag{font-size:46px;line-height:1}
+.reveal .ans{font-size:28px;font-weight:700;margin:0}
+.reveal .sub{color:var(--muted);margin:2px 0 0}
+.reveal .pts{font-size:40px;font-weight:700;font-variant-numeric:tabular-nums}
+.reveal .pts small{font-size:16px;color:var(--muted);font-weight:500}
+.factbox{background:var(--bg2);border:1px solid var(--line);border-radius:13px;padding:13px 16px;margin:14px 0;color:var(--muted);font-size:14px;text-align:left}
+.dist-tag{display:inline-block;margin-top:8px;font-size:13px;color:var(--muted)}
+
+/* dialect badge in the reveal answerline */
+.dialect-badge{display:inline-block;margin-left:9px;padding:2px 9px;border-radius:999px;
+  background:rgba(94,242,192,.16);border:1px solid var(--accent);color:#bfffe9;
+  font-size:13px;font-weight:600;vertical-align:middle}
+
+/* dialect bonus — the optional "which variety?" sub-guess */
+.dialect-bonus{margin-top:12px;padding:14px 16px;text-align:center}
+.dialect-bonus .db-label{font-size:14px;font-weight:600;color:var(--muted);margin-bottom:10px}
+.db-choices{display:flex;flex-wrap:wrap;gap:9px;justify-content:center}
+.db-choice{padding:10px 14px;border-radius:12px;background:var(--panel);border:1px solid var(--line);
+  color:var(--ink);font-size:15px;font-weight:600;cursor:pointer;transition:transform .08s,border-color .12s}
+.db-choice:hover{transform:translateY(-2px);border-color:var(--accent2)}
+.db-choice:active{transform:scale(.97)}
+.db-flag{font-size:18px;vertical-align:middle}
+.db-result{font-size:16px;font-weight:700}
+.db-result.hit{color:var(--accent)}
+.db-result.miss{color:var(--bad)}
+
+/* summary */
+.summary{padding:30px 24px;text-align:center;margin-top:16px}
+.bigscore{font-size:60px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums;
+  background:linear-gradient(120deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.ranklabel{font-size:22px;font-weight:700;margin-top:8px}
+.sharecard{background:var(--bg2);border:1px dashed var(--line2);border-radius:13px;padding:16px;margin:18px 0;
+  font-family:"Space Grotesk",monospace;white-space:pre-wrap;text-align:left;font-size:14px;line-height:1.7}
+.row{display:flex;gap:11px}.row>*{flex:1}
+.statgrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:11px;margin:10px 0 0}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:14px 8px;text-align:center}
+.stat .n{font-size:24px;font-weight:700;font-variant-numeric:tabular-nums}
+.stat .l{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-top:2px}
+
+/* modal */
+.scrim{position:fixed;inset:0;background:rgba(5,8,13,.72);backdrop-filter:blur(4px);display:grid;place-items:center;padding:20px;z-index:60;animation:fade .25s ease both}
+.modal{max-width:480px;width:100%;max-height:86vh;overflow:auto;padding:26px;border-radius:22px}
+.modal h2{margin:0 0 4px;font-size:24px}
+.modal .x{position:absolute;top:14px;right:16px}
+.modal-head{position:relative}
+.howrow{display:flex;gap:13px;align-items:flex-start;margin:14px 0}
+.howrow .n{flex:none;width:30px;height:30px;border-radius:9px;background:var(--accent);color:#06281f;font-weight:700;display:grid;place-items:center}
+
+/* footer */
+.foot{text-align:center;padding:26px 0 30px;color:var(--faint);font-size:13px}
+.foot a{color:var(--muted)}
+.foot .by{color:var(--muted)}
+.foot .by b{color:var(--accent)}
+
+/* about page */
+.about{padding:8px 0 10px}
+.about .lead{font-size:clamp(28px,6vw,42px);font-weight:700;line-height:1.05;margin:18px 0 10px}
+.about .lead .g{background:linear-gradient(120deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.about p{color:var(--col,var(--muted));font-size:17px;max-width:62ch}
+.about .big{color:var(--ink)}
+.kicker{color:var(--accent);font-weight:700;letter-spacing:.12em;text-transform:uppercase;font-size:13px}
+.pills{display:flex;flex-wrap:wrap;gap:9px;margin:18px 0}
+.pill{padding:7px 14px;border-radius:999px;background:var(--panel);border:1px solid var(--line);font-size:14px;font-weight:600;color:var(--muted)}
+.cards3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:13px;margin:22px 0}
+@media(max-width:640px){.cards3{grid-template-columns:1fr}.statgrid{grid-template-columns:1fr 1fr}}
+.svc{padding:18px;border-radius:var(--r)}
+.svc .ic{font-size:26px}.svc h3{margin:8px 0 4px;font-size:17px}.svc p{font-size:14px;margin:0}
+.cta{margin:26px 0;padding:26px;border-radius:22px;text-align:center;
+  background:linear-gradient(120deg,rgba(94,242,192,.14),rgba(124,199,255,.10));border:1px solid var(--line2)}
+.cta h2{font-size:26px;margin:0 0 6px}
+.btnrow{display:flex;gap:11px;justify-content:center;flex-wrap:wrap;margin-top:14px}
+.btnrow .btn{width:auto}
+
+/* confetti canvas */
+.confetti{position:fixed;inset:0;pointer-events:none;z-index:80}
+
+/* toast */
+.toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:var(--panel2);border:1px solid var(--line2);
+  padding:11px 18px;border-radius:12px;font-weight:600;z-index:90;animation:pop .3s var(--spring) both;box-shadow:var(--shadow)}
+
+/* ---------- festive background art ---------- */
+/* Full-bleed fun backdrop + a readability veil so UI text always reads cleanly. */
+body::before{content:"";position:fixed;inset:0;z-index:-2;pointer-events:none;
+  background:url(/bg.jpg) center/cover no-repeat;opacity:.62}
+body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background:
+    radial-gradient(820px 560px at 50% 44%, rgba(15,19,34,.80), rgba(15,19,34,.30) 58%, transparent 78%),
+    linear-gradient(180deg, rgba(15,19,34,.42), rgba(15,19,34,.10) 30%, rgba(15,19,34,.30) 78%, rgba(15,19,34,.66));}
+
+.heroart{margin:4px 0 18px;text-align:center;animation-delay:.05s}
+.heroart img{width:100%;max-height:188px;object-fit:cover;object-position:center 46%;
+  border-radius:18px;border:1px solid var(--line);box-shadow:var(--shadow);display:block}
+.inspire{font-size:15.5px;color:var(--muted);max-width:56ch;margin:15px auto 0;line-height:1.65}
+.inspire b{color:var(--ink);font-weight:600}
+
+/* Levelbrook attribution badge (top of hero) */
+.lb-badge{display:inline-flex;align-items:center;gap:8px;margin-bottom:14px;cursor:pointer;
+  font-size:12.5px;font-weight:600;letter-spacing:.02em;color:var(--muted);
+  background:var(--panel);border:1px solid var(--line2);padding:6px 14px;border-radius:999px;
+  transition:transform .15s var(--spring),border-color .15s,color .15s;animation:pop .5s var(--spring) both}
+.lb-badge b{color:var(--accent);font-weight:800}
+.lb-badge:hover{transform:translateY(-1px);border-color:var(--accent);color:var(--ink)}
+.lb-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 4px rgba(94,242,192,.18)}
+
+/* Levelbrook promo banner (above stats) */
+.lb-promo{display:flex;gap:18px;align-items:flex-start;margin:26px 0 18px;padding:22px 24px;border-radius:22px;
+  background:linear-gradient(120deg,rgba(94,242,192,.14),rgba(124,199,255,.10));border:1px solid var(--line2)}
+.lb-promo-mark{flex:none;font-size:34px;line-height:1;width:60px;height:60px;border-radius:16px;display:grid;place-items:center;
+  background:rgba(94,242,192,.12);border:1px solid var(--line2)}
+.lb-promo-kicker{color:var(--accent);font-weight:800;letter-spacing:.12em;text-transform:uppercase;font-size:12px;margin-bottom:5px}
+.lb-promo-body h3{margin:0 0 7px;font-size:20px}
+.lb-promo-body p{margin:0;font-size:14.5px;color:var(--muted);line-height:1.6;max-width:62ch}
+.lb-promo-cta{display:flex;gap:11px;flex-wrap:wrap;margin-top:15px}
+.lb-promo-cta .btn{width:auto}
+@media(max-width:640px){.lb-promo{flex-direction:column;gap:14px}.lb-promo-mark{width:52px;height:52px;font-size:28px}}
+
+.eyebrow{display:inline-block;font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--accent);background:rgba(94,242,192,.1);border:1px solid rgba(94,242,192,.28);
+  padding:6px 14px;border-radius:999px;margin-bottom:16px;animation:pop .5s var(--spring) both}
+
+.marquee{overflow:hidden;margin:0 0 22px;
+  -webkit-mask-image:linear-gradient(90deg,transparent,#000 14%,#000 86%,transparent);
+          mask-image:linear-gradient(90deg,transparent,#000 14%,#000 86%,transparent)}
+.marquee-track{display:inline-flex;gap:28px;white-space:nowrap;animation:scroll 42s linear infinite;will-change:transform}
+.marquee-track span{font-family:"Space Grotesk",sans-serif;color:var(--muted);font-size:17px;opacity:.85}
+.marquee-track span::after{content:"·";margin-left:28px;color:var(--faint)}
+@keyframes scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+.accent-tile{border-color:rgba(124,199,255,.4)!important;background:linear-gradient(100deg,rgba(124,199,255,.13),var(--panel))!important}
+.accent-tile .emoji{background:rgba(124,199,255,.13)}
+.accent-tile:hover .go{color:var(--accent2)}
+.badge-amber{background:rgba(255,180,84,.16)!important;color:var(--warm)!important}
+
+/* ---- speed bonus: live draining meter + reveal tag ---- */
+.speed{display:flex;align-items:center;gap:10px;margin:0 0 14px;padding:8px 12px;border-radius:12px;
+  background:var(--panel);border:1px solid var(--line);user-select:none}
+.speed-ico{font-size:16px;line-height:1;filter:drop-shadow(0 0 6px rgba(255,196,84,.5))}
+.speed-track{flex:1;height:8px;border-radius:99px;background:rgba(255,255,255,.07);overflow:hidden}
+.speed-fill{height:100%;border-radius:99px;width:100%;
+  background:linear-gradient(90deg,#ff7a59,#ffc454);transition:width .12s linear}
+.speed-val{font-size:13px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--warm);min-width:62px;text-align:right}
+.speed.hot .speed-ico{animation:zap .9s ease-in-out infinite}
+.speed.spent{opacity:.55}
+.speed.spent .speed-val{color:var(--muted)}
+@keyframes zap{0%,100%{transform:scale(1)}50%{transform:scale(1.22)}}
+.speed-tag{display:inline-block;margin-top:8px;font-size:13px;font-weight:700;color:var(--warm)}
+
+/* Autoplay blocked — turn the play button into a fun, unmissable invitation to tap. */
+.playwrap{position:relative;display:grid;place-items:center}
+.playbtn.nudge{animation:invite 1.05s ease-in-out infinite}
+@keyframes invite{0%,100%{transform:scale(1);box-shadow:0 14px 40px -8px rgba(94,242,192,.55)}50%{transform:scale(1.07);box-shadow:0 0 0 12px rgba(94,242,192,.16),0 0 0 24px rgba(94,242,192,.07),0 16px 46px -8px rgba(94,242,192,.7)}}
+/* the sonar rings keep firing while blocked too, so the eye is pulled to the button */
+.playwrap.blocked .ring{animation:sonar 1.6s ease-out infinite}
+.playwrap.blocked .ring.r2{animation-delay:.5s}
+.playwrap.blocked .ring.r3{animation-delay:1s}
+/* floating "Click to play" pill that bounces just below the button */
+.tap-cta{position:absolute;top:calc(100% + 14px);left:50%;transform:translateX(-50%);
+  display:inline-flex;align-items:center;gap:7px;white-space:nowrap;padding:8px 16px;border-radius:999px;
+  font-weight:800;font-size:14px;letter-spacing:.01em;color:#06281f;
+  background:radial-gradient(circle at 30% 30%,#9dffe0,var(--accent));
+  box-shadow:0 10px 28px -8px rgba(94,242,192,.65);animation:cta-bounce 1.05s ease-in-out infinite}
+.tap-cta::before{content:"";position:absolute;top:-6px;left:50%;width:12px;height:12px;
+  background:#9dffe0;transform:translateX(-50%) rotate(45deg)}
+.tap-finger{display:inline-block;font-size:16px;animation:tap-poke 1.05s ease-in-out infinite}
+@keyframes cta-bounce{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-5px)}}
+@keyframes tap-poke{0%,100%{transform:translateY(0)}50%{transform:translateY(3px)}}
+@media (prefers-reduced-motion:reduce){
+  .playbtn.nudge,.playwrap.blocked .ring,.tap-cta,.tap-finger{animation:none}
+}
+
+/* ---- leaflet zoom controls: visible on the dark basemap ---- */
+.leaflet-control-zoom{border:none!important;box-shadow:0 6px 18px -6px rgba(0,0,0,.7)!important;margin:12px!important}
+.leaflet-control-zoom a{width:34px!important;height:34px!important;line-height:34px!important;font-size:20px!important;
+  background:rgba(18,24,33,.94)!important;color:#eef3f8!important;border:1px solid var(--line2)!important}
+.leaflet-control-zoom a:first-child{border-radius:10px 10px 0 0!important}
+.leaflet-control-zoom a:last-child{border-radius:0 0 10px 10px!important;border-top:none!important}
+.leaflet-control-zoom a:hover{background:rgba(36,46,60,.98)!important;color:#fff!important}
+.leaflet-control-attribution{background:rgba(10,14,20,.7)!important;color:#7e8a99!important}
+.leaflet-control-attribution a{color:#9fb0c2!important}
