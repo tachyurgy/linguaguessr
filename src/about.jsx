@@ -61,6 +61,9 @@ export default function About({ onHome }) {
           </a>
           <button className="btn ghost" style={{ width: "auto" }} onClick={onHome}>▶ Play LinguaGuessr</button>
         </div>
+        <p className="muted" style={{ marginTop: 14, marginBottom: 0 }}>
+          Or email us directly: <a href="mailto:levelbrookteam@gmail.com">levelbrookteam@gmail.com</a>
+        </p>
       </div>
 
       <p className="faint" style={{ fontSize: 13 }}>

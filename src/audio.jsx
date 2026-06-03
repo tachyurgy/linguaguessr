@@ -61,6 +61,19 @@ export default function AudioPlayer({ src, plays, onPlay, onError, autoplay = fa
     };
   };
 
+  // Hard stop on unmount: when the player leaves the screen — switching modes,
+  // opening About, hitting the reveal, or navigating via the URL — the clip must
+  // go silent immediately. Removing the <audio> node from the DOM doesn't reliably
+  // halt in-flight playback across browsers, so we explicitly pause and detach the
+  // source. Without this, clicking around leaves the previous page's audio running.
+  useEffect(() => {
+    return () => {
+      const a = audioRef.current;
+      clearUnlock();
+      try { a?.pause(); if (a) { a.removeAttribute("src"); a.load(); } } catch {}
+    };
+  }, []);
+
   // Reset + autoplay when the clip changes.
   useEffect(() => {
     const a = audioRef.current;

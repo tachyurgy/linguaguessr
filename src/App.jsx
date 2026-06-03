@@ -17,13 +17,29 @@ const freshRound = () => ({ plays: 0, guess: null, picked: null, region: null, r
 const REGION_NAMES = (() => { try { return new Intl.DisplayNames(["en"], { type: "region" }); } catch { return null; } })();
 const countryName = (cc) => { try { return REGION_NAMES?.of(cc) || cc; } catch { return cc; } };
 
-// All the ways to play. Expert (map) is the default drop-in, GeoGuessr-style.
+// All the ways to play. Expert (map) is the headline pro challenge, surfaced as
+// its own hero in the menu; the rest are lighter free-play modes.
+const EXPERT = { key: "map", mode: "classic", emoji: "🎯", t: "Expert", d: "Drop a pin on the world map" };
 const MODES = [
-  { key: "map", mode: "classic", emoji: "🎯", t: "Expert", d: "Drop a pin on the world map" },
   { key: "region", mode: "classic", emoji: "🧭", t: "Explorer", d: "Pick the world region" },
   { key: "choice", mode: "classic", emoji: "🎧", t: "Casual", d: "Choose from four languages" },
   { key: "accent", mode: "accent", emoji: "🗣️", t: "Accent", d: "Same English passage — place the accent" },
 ];
+
+// ---- URL routing: the address bar reflects the exact mode you're playing, so a
+// page is deep-linkable and the browser Back button moves between modes. Each
+// mode has a stable slug; the game's modeKey maps back to it for the reverse. ----
+const ROUTE_BY_SLUG = {
+  daily:    { key: "daily",  mode: "daily" },
+  expert:   { key: "map",    mode: "classic" },
+  explorer: { key: "region", mode: "classic" },
+  casual:   { key: "choice", mode: "classic" },
+  accent:   { key: "accent", mode: "accent" },
+};
+// key (what onPick passes) -> slug, and modeKey (what a built game carries) -> slug.
+const SLUG_BY_KEY = { daily: "daily", map: "expert", region: "explorer", choice: "casual", accent: "accent" };
+const slugForGame = (g) => (g.mode === "daily" ? "daily" : SLUG_BY_KEY[g.modeKey] || "expert");
+const parseHash = () => (location.hash || "").replace(/^#\/?/, "").split(/[/?]/)[0].toLowerCase();
 
 function newGame(manifest, key, mode) {
   // Daily Challenge: a fixed, everyone-hears-the-same five-clip map game.
@@ -38,7 +54,7 @@ function newGame(manifest, key, mode) {
 export default function App() {
   const [manifest, setManifest] = useState(null);
   const [err, setErr] = useState(null);
-  const [route, setRoute] = useState(() => (location.hash === "#/about" ? "about" : "play"));
+  const [route, setRoute] = useState(() => (parseHash() === "about" ? "about" : "play"));
   const [menuOpen, setMenuOpen] = useState(false);
   const [howOpen, setHowOpen] = useState(false);
   const [toast, setToast] = useState(null);
@@ -57,28 +73,56 @@ export default function App() {
     E.loadManifest()
       .then((m) => {
         setManifest(m);
-        const g = newGame(m, "map", "classic");
+        // Honor a deep link: land directly in whatever mode the URL names
+        // (#/expert, #/daily, #/accent, …). Anything unknown drops into Expert,
+        // and we normalize the address bar so the URL always reflects the mode.
+        const slug = parseHash();
+        if (slug === "about") setRoute("about");
+        const r = ROUTE_BY_SLUG[slug] || ROUTE_BY_SLUG.expert;
+        const g = newGame(m, r.key, r.mode);
         setGame(g);
+        if (slug !== "about" && !ROUTE_BY_SLUG[slug]) location.replace("#/" + slugForGame(g));
         E.prefetchAll(m, { priority: g.rounds.map((c) => c.url) }).catch(() => {});
       })
       .catch((e) => setErr(e.message));
   }, []);
+  // Drive routing off the address bar: deep links, the Back/Forward buttons, and
+  // our own start() calls all funnel through here. Switching modes via the URL
+  // builds the matching game (and tearing down the old GameView stops its audio).
   useEffect(() => {
-    const onHash = () => setRoute(location.hash === "#/about" ? "about" : "play");
+    const onHash = () => {
+      const slug = parseHash();
+      if (slug === "about") { setRoute("about"); return; }
+      setRoute("play");
+      const r = ROUTE_BY_SLUG[slug];
+      if (!r || !manifest) return;
+      setGame((cur) => {
+        if (cur && slugForGame(cur) === slug) return cur; // already here — no rebuild
+        const pre = nextGameRef.current;
+        const g = pre && pre.key === r.key && pre.mode === r.mode ? pre.game : newGame(manifest, r.key, r.mode);
+        nextGameRef.current = null;
+        E.prefetchAll(manifest, { priority: g.rounds.map((c) => c.url) }).catch(() => {});
+        return g;
+      });
+    };
     addEventListener("hashchange", onHash);
     return () => removeEventListener("hashchange", onHash);
-  }, []);
+  }, [manifest]);
 
   const showToast = (msg) => { setToast(msg); setTimeout(() => setToast(null), 1700); };
   const goAbout = () => { location.hash = "#/about"; setMenuOpen(false); };
-  const goPlay = () => { location.hash = "#/"; setRoute("play"); };
+  const goPlay = () => { if (game) location.hash = "#/" + slugForGame(game); setRoute("play"); };
   const start = (key, mode) => {
     // Reuse the speculative game we built during the last round if it matches the
     // requested mode — its clips are already warmed, so play begins instantly.
     const pre = nextGameRef.current;
     const g = pre && pre.key === key && pre.mode === mode ? pre.game : newGame(manifest, key, mode);
     nextGameRef.current = null;
-    setGame(g); setMenuOpen(false); goPlay();
+    setGame(g); setMenuOpen(false); setRoute("play");
+    // Reflect the mode in the URL (deep-linkable + Back-button friendly). The
+    // hashchange handler sees the game already matches, so it won't rebuild.
+    const slug = SLUG_BY_KEY[key] || "expert";
+    if (parseHash() !== slug) location.hash = "#/" + slug;
     // Warm this game's clips immediately (covers Accent Mode's cross-origin audio).
     E.prefetchAll(manifest, { priority: g.rounds.map((c) => c.url) }).catch(() => {});
   };
@@ -145,7 +189,7 @@ function Menu({ manifest, current, stats, onPick, onAbout, onHow, onClose }) {
   const streak = stats.streak || 0;
   return (
     <div className="scrim" onClick={onClose}>
-      <div className="modal card" onClick={(e) => e.stopPropagation()}>
+      <div className="modal card menu-modal" onClick={(e) => e.stopPropagation()}>
         <div className="modal-head">
           <h2 className="display">Play a round</h2>
           <button className="iconbtn x" onClick={onClose}>✕</button>
@@ -164,7 +208,16 @@ function Menu({ manifest, current, stats, onPick, onAbout, onHow, onClose }) {
           <span className="dh-go">{dailyDone ? "↻" : "▶"}</span>
         </button>
 
-        <div className="menu-or"><span>or pick a free-play mode</span></div>
+        <button className={"daily-hero expert-hero" + (current.modeKey === "map" && current.mode === "classic" ? " on" : "")} onClick={() => onPick(EXPERT.key, EXPERT.mode)}>
+          <span className="dh-cal">🎯</span>
+          <span className="dh-text">
+            <span className="dh-title">Expert Mode <span className="dh-badge pro">PRO</span></span>
+            <span className="dh-sub">The real test — go by ear and drop a pin anywhere on the world map.</span>
+          </span>
+          <span className="dh-go">▶</span>
+        </button>
+
+        <div className="menu-or"><span>or pick a lighter mode</span></div>
 
         <div className="menu-modes">
           {MODES.map((m) => (
@@ -178,6 +231,8 @@ function Menu({ manifest, current, stats, onPick, onAbout, onHow, onClose }) {
           <button className="linklike" onClick={onHow}>How to play</button>
           <span className="dotsep">·</span>
           <button className="linklike" onClick={onAbout}>About — a demo by Levelbrook</button>
+          <span className="dotsep">·</span>
+          <a className="linklike" href="mailto:levelbrookteam@gmail.com">levelbrookteam@gmail.com</a>
         </div>
         <p className="faint" style={{ textAlign: "center", fontSize: 12.5, margin: "10px 0 0" }}>
           {manifest.languages.length} languages · {(manifest.count + (manifest.accents?.length || 0)).toLocaleString()} clips
@@ -560,7 +615,7 @@ function Shell({ children, variant = "page", onBrand, onMenu, onHow, onAbout }) 
       {children}
       {!game && (
         <div className="foot narrow">
-          <div className="by">A demo by <b>Levelbrook</b>, a senior software consulting practice · <a href="#/about" onClick={(e) => { e.preventDefault(); onAbout?.(); }}>who we are</a> · <a href="https://levelbrook.com" target="_blank" rel="noreferrer">levelbrook.com</a></div>
+          <div className="by">A demo by <b>Levelbrook</b>, a senior software consulting practice · <a href="#/about" onClick={(e) => { e.preventDefault(); onAbout?.(); }}>who we are</a> · <a href="https://levelbrook.com" target="_blank" rel="noreferrer">levelbrook.com</a> · <a href="mailto:levelbrookteam@gmail.com">levelbrookteam@gmail.com</a></div>
           <div style={{ marginTop: 4 }}>Audio: Google FLEURS (CC BY 4.0) · Accent Mode: The Speech Accent Archive</div>
         </div>
       )}
@@ -580,15 +635,17 @@ function HowTo({ onClose }) {
   ];
   return (
     <div className="scrim" onClick={onClose}>
-      <div className="modal card" onClick={(e) => e.stopPropagation()}>
+      <div className="modal card howto-modal" onClick={(e) => e.stopPropagation()}>
         <div className="modal-head">
           <h2 className="display">How to play</h2>
           <button className="iconbtn x" onClick={onClose}>✕</button>
         </div>
         <p className="muted" style={{ marginTop: 0 }}>A celebration of how the world sounds. Be curious, not perfect.</p>
-        {rows.map(([n, t]) => (
-          <div className="howrow" key={t}><span className="n">{n}</span><span>{t}</span></div>
-        ))}
+        <div className="howrows">
+          {rows.map(([n, t]) => (
+            <div className="howrow" key={t}><span className="n">{n}</span><span>{t}</span></div>
+          ))}
+        </div>
         <button className="btn" onClick={onClose} style={{ marginTop: 8 }}>Let's go</button>
       </div>
     </div>
