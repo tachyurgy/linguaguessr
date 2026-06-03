@@ -9,6 +9,18 @@ Deploy command: `npm run build && npx wrangler pages deploy dist --project-name=
 
 ---
 
+## 2026-06-03 — Menu/routing/modal polish: Expert PRO hero, URL-per-mode, no-scroll modals, audio-bleed fix
+- **What deployed:** lingua.levelbrook.com (bundle `index-tOZowhwm.js`) — a UX polish pass on the front-end (no corpus change; still 40 langs / 1,102 clips + 874 accent clips). The mode picker and How-to modals are now roomy desktop rectangles, the URL reflects the active mode, Expert is surfaced as its own PRO hero, leftover audio no longer bleeds between screens, and mobile map mode fits one screen.
+- **Changed:**
+  - **URL-per-mode routing (`App.jsx`):** hash routes `#/expert #/daily #/explorer #/casual #/accent #/about`. Deep-linkable; browser Back/Forward move between modes; initial load honors a deep link and normalizes the address bar. `ROUTE_BY_SLUG`/`SLUG_BY_KEY`/`slugForGame()`/`parseHash()`; a `hashchange` effect rebuilds the matching game and no-ops when already on it.
+  - **Expert "PRO" hero:** pulled map/classic out of the 4-up grid into its own `daily-hero`-styled blurb beside the Daily Challenge; the three lighter modes (Explorer/Casual/Accent) now sit under "or pick a lighter mode" (3-up on desktop).
+  - **Modals are rectangles, not phone columns (`styles.css`):** desktop menu → 860px with a 3-up mode grid; How-to → 760px with a two-column tip layout (`.howrows`); `max-height` 86vh→90vh; short-wide windows lift the menu cap to 980px. No scrolling.
+  - **Audio bleed fix (`audio.jsx`):** AudioPlayer hard-pauses + detaches its `src` on unmount, so switching modes / opening About / revealing / URL nav stops the previous clip (DOM removal alone didn't reliably halt playback).
+  - **Mobile in-game fit (`styles.css`):** map mode on phones compacts the listen panel (64px play button, hidden equalizer), shrinks map heights (46vh/42vh), and pins the Guess button sticky-bottom — player + map + button fit one screen.
+  - **Email on the page:** `levelbrookteam@gmail.com` added to the menu footer, site footer, and About CTA.
+- **How:** `npm run build && CLOUDFLARE_API_TOKEN=$LEVELBROOK_CF_DEPLOY_TOKEN CLOUDFLARE_ACCOUNT_ID=a67eceeb4b89d2d4171ed209e87c9456 npx wrangler pages deploy dist --project-name=linguaguessr --branch=main --commit-dirty=true`. Source committed as `Levelbrook Consulting` (commit `9dca5f7`), pushed to origin/master.
+- **Verified:** home + manifest.json HTTP 200; live `index.html` references `index-tOZowhwm.js` — **byte-for-byte the same hash as the local build**, confirming the new bundle is live (not cached). Pre-deploy, headless-Chromium screenshots confirmed the desktop/mobile menu, game, and How-to layouts fit without scrolling, and interaction tests confirmed routing (`#/expert`→`#/casual`→`#/daily`, Back returns) and audio teardown (clip playing → navigate away → audio element gone).
+
 ## 2026-06-03 — Dialect bonus shipped + corpus rebalanced, +3 minority languages (40 langs / 1,102 clips)
 - **What deployed:** lingua.levelbrook.com (bundle `index-__YUQb9D.js`) — the **"which variety did you hear?" dialect bonus is now live**, the dialect corpus is **rebalanced** so the bonus is a real choice (no more 29:1 splits), and three connoisseur minority languages — **Welsh, Basque, Galician** — joined the Classic corpus (now **40 languages / 1,102 clips**). Audio served from Cloudflare R2.
 - **Changed:**
