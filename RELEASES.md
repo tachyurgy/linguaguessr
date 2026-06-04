@@ -9,6 +9,17 @@ Deploy command: `npm run build && npx wrangler pages deploy dist --project-name=
 
 ---
 
+## 2026-06-04 — Non-news corpus augment (21 major languages, +404 clips)
+- **What deployed:** lingua.levelbrook.com (deployment `873f37c3`, Production/branch `main`, bundle `index-CVSu4WhF.js`) — the corpus is now diluted with non-news genres (sports commentary, vlogs, cooking, storytelling, podcasts, lectures) for the major languages, fixing the "too news-heavy" feedback.
+- **Changed:**
+  - **Corpus (`public/manifest.json`):** 1,102 → **1,506 clips**. Added **404 non-news clips** (≈20/language) across 21 major languages: ara, cmn, deu, ell, fas, fra, heb, hin, ind, ita, jpn, kor, nld, pol, por, rus, swe, tha, tur, ukr, vie (+2 ben). All YouTube-sourced, MLX-Whisper language-verified, non-news queries only.
+  - **Audio:** 404 new mp3s uploaded to Cloudflare R2 (`pub-9a4845be63e04f32b9b11b62f9aa2075.r2.dev`); manifest URLs point at R2.
+  - **Translations:** all 404 new clips got `text_en` via AWS Translate; manifest is 1,506/1,506 translated. (Note: `finalize.py` wipes `text_en`, so the original 1,102 translations were restored from the pre-finalize backup to avoid re-billing the whole corpus.)
+  - **Build tooling:** non-news lane in `audio_corpus_builder/build_corpus.py` (`LG_NONNEWS_ONLY=1`) + `nonnews_queries.py` (44-lang non-news query pools).
+- **How:** killed the stalled sweep → `python3 audio_corpus_builder/finalize.py` → restore `text_en` from backup → `node scripts/translate-manifest.mjs` → `CLOUDFLARE_ACCOUNT_ID=… node scripts/clips-to-r2.mjs` → `npm run build` → snapshot dist → `npx wrangler pages deploy /tmp/lg-deploy-snapshot --project-name=linguaguessr --branch=main --commit-dirty=true`.
+- **Verified:** cache-busted `https://lingua.levelbrook.com/manifest.json` reports **1,506/1,506 clips with `text_en`**; sampled new clip audio (fra/kor/deu/jpn/ben) returns HTTP 206 off R2; page returns HTTP 200. (First read showed a stale 1,102 from edge cache — confirmed 1,506 with a cache-bust query.)
+- **Not in this release (in progress / pending):** a tail sweep for tam/swh/afr/ron/ces/hun/fin/dan/nor/urd/tel/tgl/bul/isl/cat is still running and will ship in a follow-up finalize+deploy. **Bengali skipped** (Whisper mis-detects as gu/hi — needs forced `--language bn`). **amh/hau/som/yor/haw/mri excluded** (Whisper-unverifiable; need the curated/trusted-source path).
+
 ## 2026-06-03 — English translation of every source clip on the reveal screen
 - **What deployed:** lingua.levelbrook.com (deployment `f29bd2e7`, bundle `index-CVSu4WhF.js`, CSS `index-iewdP5oy.css`) — every clip now carries an English translation, shown under the native transcript when the answer is revealed.
 - **Changed:**
