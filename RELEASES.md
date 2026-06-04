@@ -9,6 +9,15 @@ Deploy command: `npm run build && npx wrangler pages deploy dist --project-name=
 
 ---
 
+## 2026-06-03 — English translation of every source clip on the reveal screen
+- **What deployed:** lingua.levelbrook.com (deployment `f29bd2e7`, bundle `index-CVSu4WhF.js`, CSS `index-iewdP5oy.css`) — every clip now carries an English translation, shown under the native transcript when the answer is revealed.
+- **Changed:**
+  - **Corpus (`public/manifest.json`):** added a `text_en` field to all 1,102 clips (40 languages). Generated via AWS Translate (1,082 clips, source-language explicit), with Galician (8) translated through the mutually-intelligible Portuguese model and Basque (12) hand-translated best-effort from the noisy Whisper transcripts (AWS has no eu→en / gl→en pair; OpenAI fallback was out of quota). Accent-mode clips are untouched (they share one English passage already).
+  - **Reveal UI (`App.jsx`, `styles.css`):** under the "What you just heard" native transcript, a new "English translation" line (`.said-en`, muted italic, divider above) renders `clip.text_en` in non-accent modes.
+  - **Tooling:** added `scripts/translate-manifest.mjs` (AWS Translate + OpenAI fallback, idempotent — skips clips that already have `text_en`, safe to re-run as new clips are added) and `scripts/translate-remaining.mjs` (Galician-via-Portuguese + Basque hand-translations).
+- **How:** `node scripts/translate-manifest.mjs && node scripts/translate-remaining.mjs && npm run build && export CLOUDFLARE_API_TOKEN="$LEVELBROOK_CF_DEPLOY_TOKEN" CLOUDFLARE_ACCOUNT_ID="a67eceeb4b89d2d4171ed209e87c9456" && npx wrangler pages deploy dist --project-name=linguaguessr --branch=main --commit-dirty=true`
+- **Verified:** Live `https://lingua.levelbrook.com/manifest.json` reports 1,102/1,102 clips with `text_en`; spot-checked translations across spa/jpn/deu/rus/glg/eus/cmn/ara/fra read sensibly; the deployed JS bundle contains the `said-en` render; domain returns HTTP 200.
+
 ## 2026-06-03 — Mobile: freeze the in-game map view to the viewport (no more scrolling)
 - **What deployed:** lingua.levelbrook.com (bundle `index-2smT8cFQ.js`, CSS `index-BlcGOIu3.css`) — a mobile-only layout fix; no corpus change. The in-game Expert/map view no longer overflows the phone screen and forces an awkward scroll to reach the map and the Guess button.
 - **Changed:**

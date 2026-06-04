@@ -525,6 +525,12 @@ function Reveal({ clip, truth, hit, pts, game }) {
         <div className="said">
           <div className="said-label">{accent ? "Everyone read this passage" : "What you just heard"}</div>
           <p className="said-text">“{said}”</p>
+          {!accent && clip.text_en && (
+            <>
+              <div className="said-en-label">English translation</div>
+              <p className="said-en">{clip.text_en}</p>
+            </>
+          )}
         </div>
       )}
 

@@ -368,6 +368,9 @@ button.report-audio:disabled{cursor:default;opacity:.6}
 .said-label{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:7px}
 .said-text{margin:0;font-family:"Space Grotesk",Inter,sans-serif;font-weight:600;
   font-size:clamp(18px,2.4vw,23px);line-height:1.4;color:var(--ink)}
+.said-en-label{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--muted);margin:13px 0 5px;padding-top:12px;border-top:1px solid var(--line2)}
+.said-en{margin:0;font-size:clamp(14px,1.9vw,17px);line-height:1.45;color:var(--muted);font-style:italic}
 
 /* language + flag, secondary to the words now */
 .answerline{display:flex;align-items:center;justify-content:center;gap:14px;text-align:left;margin:4px 0 6px}
