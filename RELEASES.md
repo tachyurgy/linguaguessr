@@ -9,6 +9,15 @@ Deploy command: `npm run build && npx wrangler pages deploy dist --project-name=
 
 ---
 
+## 2026-06-03 — Mobile: freeze the in-game map view to the viewport (no more scrolling)
+- **What deployed:** lingua.levelbrook.com (bundle `index-2smT8cFQ.js`, CSS `index-BlcGOIu3.css`) — a mobile-only layout fix; no corpus change. The in-game Expert/map view no longer overflows the phone screen and forces an awkward scroll to reach the map and the Guess button.
+- **Changed:**
+  - **Frozen map guess (`styles.css`, `@media(max-width:980px)`):** during the map guess the stage is now a non-scrolling flex column (`overflow:hidden`) — compact listen controls on top, the map flexes to consume ALL remaining height (`flex:1 1 auto` + `min-height:0` replacing the old fixed `46vh` that could overflow), and the Guess button is pinned directly beneath it. One screen, zero scroll.
+  - **Reveal still scrolls:** only the longer reveal keeps `overflow-y:auto`, with its Next button still sticky, so it's always one tap away.
+  - **Short-phone map polish (`@media(max-width:980px) and (max-height:720px)`):** in map mode, drop the "listen & place it" label and shrink the play button so the map gets the lion's share of the screen.
+- **How:** `npm run build && export CLOUDFLARE_API_TOKEN="$LEVELBROOK_CF_DEPLOY_TOKEN" CLOUDFLARE_ACCOUNT_ID="a67eceeb4b89d2d4171ed209e87c9456" && npx wrangler pages deploy dist --project-name=linguaguessr --branch=main --commit-dirty=true`
+- **Verified:** Real mobile-viewport browser (cached Playwright Chromium) at 390×844 and 375×667 — document scroll overflow 0px, stage scroll 0px, Guess button in view both sizes; map grew 218px→290px on the SE after the short-phone tweak; map reveal shows with a reachable sticky Next; Casual mode fits with all 4 choices in view. Live domain returns HTTP 200 and serves `index-2smT8cFQ.js`.
+
 ## 2026-06-03 — Menu/routing/modal polish: Expert PRO hero, URL-per-mode, no-scroll modals, audio-bleed fix
 - **What deployed:** lingua.levelbrook.com (bundle `index-tOZowhwm.js`) — a UX polish pass on the front-end (no corpus change; still 40 langs / 1,102 clips + 874 accent clips). The mode picker and How-to modals are now roomy desktop rectangles, the URL reflects the active mode, Expert is surfaced as its own PRO hero, leftover audio no longer bleeds between screens, and mobile map mode fits one screen.
 - **Changed:**
