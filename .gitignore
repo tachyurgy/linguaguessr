@@ -26,3 +26,4 @@ public/manifest.json.bak.*
 # GitHub's HTTP push limit. The manifest.json index IS tracked.
 public/sentence-clips/
 public/accents/
+public/cc-clips/

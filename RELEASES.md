@@ -9,6 +9,15 @@ Deploy command: `npm run build && npx wrangler pages deploy dist --project-name=
 
 ---
 
+## 2026-06-05 — Hawaiian (ʻōlelo Hawaiʻi) added — 38 languages, 1,851 clips
+- **What deployed:** lingua.levelbrook.com (deployment `962e6a1b`, Production/branch `main`) — Hawaiian is now a playable language. 37 → **38 languages**, 1,823 → **1,851 clips**.
+- **Changed:**
+  - **New language `haw`:** 28 clips, mapped to Hawaiʻi (geo `[20.8, -156.3]`, region Oceania, family Polynesian, difficulty 3). Every clip has a real Hawaiian transcript **and** an English translation.
+  - **Source / method (no Whisper):** YouTube has no speech-recognition for Hawaiian, so auto-captions don't exist — the only trustworthy signal is a **human-uploaded Hawaiian subtitle track**. Scanned 560+ Hawaiian videos; exactly one authentic source carried both a manual Hawaiian transcript and an English translation: the **Papamū Podcast** (Kanaeokana, a Native Hawaiian education network). Clips are cut to 19s windows aligned to the subtitle cue boundaries; the manual `haw` track becomes the native `text` (and is the verification that the audio really is Hawaiian), the `en` track becomes `text_en`. An AI audiobook content-farm (machine-translated Hawaiian) and a video with an empty `haw` track were both rejected.
+  - **Audio:** 28 new mp3s uploaded to Cloudflare R2 (`pub-9a4845be63e04f32b9b11b62f9aa2075.r2.dev`); manifest URLs repointed to R2 (`clips-to-r2.mjs`). No AWS/Whisper/translation API spend — the English came free from YouTube's caption track.
+- **How:** local toolkit `audio_corpus_builder/{scan_hawaiian.py,build_hawaiian.py}` (gitignored) → `MIN_CLIPS=20 finalize.py` → `clips-to-r2.mjs` → `npm run build` → wrangler pages deploy from an isolated dist snapshot.
+- **Verified:** `lingua.levelbrook.com/manifest.json` (cache-busted) reports **38 langs / 1,851 clips / 0 missing text_en**, includes the `haw` language entry, and a sample Hawaiian clip returns HTTP 200 from R2 with correct transcript + translation.
+
 ## 2026-06-05 — Fix: logo no longer opens the launcher modal mid-game
 - **What deployed:** lingua.levelbrook.com (deployment `98328d03`, Production/branch `main`).
 - **Changed:** The "Play a round" launcher modal was appearing unexpectedly during a round. Cause: the brand logo's `onClick` always opened the launcher in every context, including an active game — brushing the 163×34px top-left logo (or tapping it expecting "home") threw the modal over the current round. Now the logo only opens the launcher off-game (summary/about/empty); mid-game it's inert and the labeled "Menu" button remains the deliberate mode switcher. One-line guard in `src/App.jsx` (`if (!inGame)`).
