@@ -588,7 +588,9 @@ body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
 .sup-coffee{display:flex;align-items:center;gap:14px;margin-top:20px;padding:16px 18px;border-radius:16px;
   text-decoration:none;color:var(--ink);border:1px solid var(--line2);
   background:linear-gradient(135deg,rgba(255,194,107,.16),rgba(255,143,80,.10));transition:transform .15s,filter .15s}
-.sup-coffee:hover{transform:translateY(-2px);filter:brightness(1.06)}
+.sup-coffee:hover{transform:translateY(-2px);filter:brightness(1.06);text-decoration:none}
+/* these support CTAs are anchors — keep the global a:hover underline off them */
+.sup-coffee:hover,.sup-tier:hover,.sup-patreon-btn:hover{text-decoration:none}
 .sup-coffee .sc-emoji{font-size:30px;flex:0 0 auto}
 .sup-coffee .sc-text{display:flex;flex-direction:column;gap:3px;flex:1 1 auto}
 .sup-coffee .sc-text b{font-size:16px}
