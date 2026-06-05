@@ -16,13 +16,9 @@ human speech and guess where on Earth it's spoken. A demo by [Levelbrook](https:
   and a cultural note. Confetti on strong guesses.
 
 ## Data
-1,280 native-speaker clips across **38 languages / 8 world regions**, pulled from
-[Lingua Libre](https://lingualibre.org) / Wikimedia Commons (Creative Commons). The clip library
-is just a manifest of URLs — see `scripts/build-manifest.mjs`.
-
-```bash
-npm run data     # rebuild public/manifest.json from the Commons API
-```
+~1,800 short clips of real human speech across **37 languages / 8 world regions**. Each clip is a
+brief fragment used for the listening puzzle, with its original source linked on the reveal screen.
+The app just reads a flat manifest of clip URLs (`public/manifest.json`).
 
 ## Develop
 ```bash
