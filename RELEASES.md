@@ -9,6 +9,16 @@ Deploy command: `npm run build && npx wrangler pages deploy dist --project-name=
 
 ---
 
+## 2026-06-04 — Tail-language expansion + thin-language cap (37 langs, 1,823 clips)
+- **What deployed:** lingua.levelbrook.com (deployment `c1dfede3`, Production/branch `main`) — the long-tail languages are now at full strength and the embarrassingly-thin ones are gone. Grew from 40 langs / 1,506 clips to **37 langs / 1,823 clips**.
+- **Changed:**
+  - **Tail languages fattened to ~50 clips:** afr, ces, dan, fin, hun, nor, ron, swh, urd (were 24 live), plus bul, cat, isl, tgl filled out from already-downloaded clips that had never been rebuilt/redeployed.
+  - **Minimum-clips cap added** (`audio_corpus_builder/finalize.py`): new `MIN_CLIPS` env (default 20) drops any language below the floor so a thin language can't ship a broken round. This release dropped **cym (Welsh), eus (Basque), glg (Galician)** — all stuck at 12 clips. Bonus: those three were exactly the languages AWS Translate doesn't support (they relied on the now-dead OpenAI fallback), so the corpus is now 100% AWS-translatable.
+  - **Translations:** 353 new clips translated to `text_en` via **AWS Translate on the free-tier account 428189920728** (`scripts/translate-manifest.mjs`); 0 OpenAI calls, 0 failures. Manifest now has 0 clips missing `text_en`.
+  - Thinnest kept languages: ben (30), tam (38) — both above the 20 floor. (Tamil capped at 38 because Whisper's compression-ratio quality gate rejects its repetitive/hallucinated decodes on non-news audio.)
+- **How:** killed the running corpus sweep → `MIN_CLIPS=20 python3 audio_corpus_builder/finalize.py` → translate with free-tier creds (`export AWS_ACCESS_KEY_ID=$AWS_KEY AWS_SECRET_ACCESS_KEY=$AWS_SECRET_KEY; node scripts/translate-manifest.mjs`) → `npm run build` → wrangler pages deploy (`CLOUDFLARE_API_TOKEN=$LEVELBROOK_CF_DEPLOY_TOKEN CLOUDFLARE_ACCOUNT_ID=a67eceeb4b89d2d4171ed209e87c9456`).
+- **Verified:** `lingua.levelbrook.com/manifest.json` returns **37 langs / 1,823 clips / 0 missing text_en**; confirmed cym/eus/glg absent; a sample new Afrikaans clip serves HTTP 200 from `/sentence-clips/`.
+
 ## 2026-06-04 — Support layer live (Buy Me a Coffee + Patreon + Bitcoin)
 - **What deployed:** lingua.levelbrook.com (final deployment `a7248081`, Production/branch `main`, bundle `index-NLGuuB_g.js`) — the indie-maker monetization layer is now wired into the game and live. `src/support.jsx` existed but had never been imported into the app or styled; this release activates it with real account values. (Shipped in two deploys: `28521013` first, then `a7248081` with a hover-underline fix.)
 - **Changed:**
