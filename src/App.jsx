@@ -161,7 +161,7 @@ export default function App() {
   return (
     <Shell
       variant={inGame ? "game" : "page"}
-      onBrand={() => { goPlay(); setMenuOpen(true); }}
+      onBrand={() => { goPlay(); if (!inGame) setMenuOpen(true); }}
       onMenu={() => setMenuOpen(true)}
       onHow={() => setHowOpen(true)}
       onAbout={goAbout}
