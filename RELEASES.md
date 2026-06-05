@@ -9,6 +9,12 @@ Deploy command: `npm run build && npx wrangler pages deploy dist --project-name=
 
 ---
 
+## 2026-06-05 — Fix: logo no longer opens the launcher modal mid-game
+- **What deployed:** lingua.levelbrook.com (deployment `98328d03`, Production/branch `main`).
+- **Changed:** The "Play a round" launcher modal was appearing unexpectedly during a round. Cause: the brand logo's `onClick` always opened the launcher in every context, including an active game — brushing the 163×34px top-left logo (or tapping it expecting "home") threw the modal over the current round. Now the logo only opens the launcher off-game (summary/about/empty); mid-game it's inert and the labeled "Menu" button remains the deliberate mode switcher. One-line guard in `src/App.jsx` (`if (!inGame)`).
+- **How:** `npm run build && CLOUDFLARE_API_TOKEN=$LEVELBROOK_CF_DEPLOY_TOKEN CLOUDFLARE_ACCOUNT_ID=a67eceeb4b89d2d4171ed209e87c9456 npx wrangler pages deploy dist --project-name=linguaguessr --branch=main --commit-dirty=true`
+- **Verified:** Headless Chromium at 390px mobile viewport — in-game logo tap no longer opens the modal, Menu button still does, logo still opens launcher on the About screen. Post-deploy: live HTML references the new bundle `index-DWifwL_E.js` (matches the verified local build).
+
 ## 2026-06-04 — Tail-language expansion + thin-language cap (37 langs, 1,823 clips)
 - **What deployed:** lingua.levelbrook.com (deployment `c1dfede3`, Production/branch `main`) — the long-tail languages are now at full strength and the embarrassingly-thin ones are gone. Grew from 40 langs / 1,506 clips to **37 langs / 1,823 clips**.
 - **Changed:**
