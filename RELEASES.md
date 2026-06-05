@@ -9,6 +9,16 @@ Deploy command: `npm run build && npx wrangler pages deploy dist --project-name=
 
 ---
 
+## 2026-06-04 — Support layer live (Buy Me a Coffee + Patreon + Bitcoin)
+- **What deployed:** lingua.levelbrook.com (deployment `28521013`, Production/branch `main`, bundle `index-PKQ1yYpH.js`) — the indie-maker monetization layer is now wired into the game and live. `src/support.jsx` existed but had never been imported into the app or styled; this release activates it with real account values.
+- **Changed:**
+  - **`src/support.jsx`:** real handles in the `SUPPORT` object — Buy Me a Coffee `buymeacoffee.com/tachyurgy`, Patreon `patreon.com/cw/tachyurgy`, Bitcoin `bc1qhspfxlknat3hza2uwe8e4xe9q5sm42j258m3zvwhg42ms64ns9nq3fxzcp`. The Bitcoin section now renders conditionally (hidden when no address is set).
+  - **`src/App.jsx`:** imported `Support` + `SupportStrip`; added `supportOpen` state and the modal. Placed the ask at the two warm moments — a `SupportStrip` on the end-of-game **Summary** screen, and a **"☕ Support"** link in the Menu footer. Both open the full Support modal (coffee button + $3/$7/$15/$35 Patreon tier ladder, Polyglot flagged "most popular").
+  - **`src/styles.css`:** added the full support stylesheet (modal, coffee CTA, tier ladder, BTC copy row, Summary strip) — these classes had no styles before, matched to the existing design tokens.
+  - **Docs:** added `docs/patreon-strategy.html` (the monetization strategy memo) and `docs/game-studio-strategy.html` (the "one game → indie studio" reframe companion memo).
+- **How:** `npm run build` → `export CLOUDFLARE_API_TOKEN=$LEVELBROOK_CF_DEPLOY_TOKEN; export CLOUDFLARE_ACCOUNT_ID=a67eceeb4b89d2d4171ed209e87c9456; npx wrangler pages deploy dist --project-name=linguaguessr --branch=main --commit-dirty=true`.
+- **Verified:** `lingua.levelbrook.com` returns HTTP 200 and its index references the new bundle `index-PKQ1yYpH.js`; grepped the live JS bundle and confirmed all three support values (BMC handle, Patreon URL, BTC address) are present. Visual/interaction of the modal not browser-tested this session — wiring + values verified, UI rendering assumed from the matched CSS.
+
 ## 2026-06-04 — Non-news corpus augment (21 major languages, +404 clips)
 - **What deployed:** lingua.levelbrook.com (deployment `873f37c3`, Production/branch `main`, bundle `index-CVSu4WhF.js`) — the corpus is now diluted with non-news genres (sports commentary, vlogs, cooking, storytelling, podcasts, lectures) for the major languages, fixing the "too news-heavy" feedback.
 - **Changed:**

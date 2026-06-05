@@ -5,6 +5,7 @@ import { burst } from "./confetti.js";
 import AudioPlayer from "./audio.jsx";
 import MapGuess from "./map.jsx";
 import About from "./about.jsx";
+import Support, { SupportStrip } from "./support.jsx";
 import { reportBadAudio } from "./report.js";
 
 const REGION_EMOJI = {
@@ -57,6 +58,7 @@ export default function App() {
   const [route, setRoute] = useState(() => (parseHash() === "about" ? "about" : "play"));
   const [menuOpen, setMenuOpen] = useState(false);
   const [howOpen, setHowOpen] = useState(false);
+  const [supportOpen, setSupportOpen] = useState(false);
   const [toast, setToast] = useState(null);
   const [stats, setStats] = useState(() => E.loadStats());
   const [game, setGame] = useState(null);
@@ -171,20 +173,21 @@ export default function App() {
       ) : complete ? (
         <div className="narrow"><Summary game={game} stats={stats}
           onAgain={() => game.mode === "daily" ? start("map", "classic") : start(game.modeKey, game.mode)}
-          onMenu={() => setMenuOpen(true)} onShare={showToast} /></div>
+          onMenu={() => setMenuOpen(true)} onShare={showToast} onSupport={() => setSupportOpen(true)} /></div>
       ) : (
         <GameView manifest={manifest} game={game} setGame={setGame} stats={stats} setStats={setStats} />
       )}
 
-      {menuOpen && <Menu manifest={manifest} current={game} stats={stats} onPick={start} onAbout={goAbout} onHow={() => { setHowOpen(true); setMenuOpen(false); }} onClose={() => setMenuOpen(false)} />}
+      {menuOpen && <Menu manifest={manifest} current={game} stats={stats} onPick={start} onAbout={goAbout} onHow={() => { setHowOpen(true); setMenuOpen(false); }} onSupport={() => { setSupportOpen(true); setMenuOpen(false); }} onClose={() => setMenuOpen(false)} />}
       {howOpen && <HowTo onClose={() => setHowOpen(false)} />}
+      {supportOpen && <Support onClose={() => setSupportOpen(false)} />}
       {toast && <div className="toast">{toast}</div>}
     </Shell>
   );
 }
 
 // ===== Menu (replaces the old home screen) =====
-function Menu({ manifest, current, stats, onPick, onAbout, onHow, onClose }) {
+function Menu({ manifest, current, stats, onPick, onAbout, onHow, onSupport, onClose }) {
   const dailyDone = E.dailyDoneToday(stats);
   const streak = stats.streak || 0;
   return (
@@ -230,6 +233,8 @@ function Menu({ manifest, current, stats, onPick, onAbout, onHow, onClose }) {
         <div className="menu-foot">
           <button className="linklike" onClick={onHow}>How to play</button>
           <span className="dotsep">·</span>
+          <button className="linklike" onClick={onSupport}>☕ Support</button>
+          <span className="dotsep">·</span>
           <button className="linklike" onClick={onAbout}>About — a demo by Levelbrook</button>
           <span className="dotsep">·</span>
           <a className="linklike" href="mailto:levelbrookteam@gmail.com">levelbrookteam@gmail.com</a>
@@ -256,7 +261,7 @@ function EmptyMode({ onMenu }) {
 }
 
 // ===== Summary =====
-function Summary({ game, stats, onAgain, onMenu, onShare }) {
+function Summary({ game, stats, onAgain, onMenu, onShare, onSupport }) {
   const total = game.scores.reduce((a, b) => a + b, 0);
   const rank = E.rankFor(total);
   const daily = game.mode === "daily";
@@ -291,6 +296,7 @@ function Summary({ game, stats, onAgain, onMenu, onShare }) {
       <button className="linklike" style={{ display: "block", margin: "14px auto 0", color: "var(--accent2)" }} onClick={onMenu}>
         {daily ? "Choose another mode →" : "Try a different mode →"}
       </button>
+      <SupportStrip onOpen={onSupport} />
     </div>
   );
 }

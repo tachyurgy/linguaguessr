@@ -1,0 +1,397 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>From one game to a studio — the portfolio reframe</title>
+<style>
+  :root{
+    --bg:#0f1322; --bg2:#161c30; --panel:#1c2440; --panel2:#252e4e;
+    --line:#2c3760; --line2:#3a467a;
+    --ink:#f1f5ff; --muted:#a6b2d4; --faint:#7986ac;
+    --mint:#5ef2c0; --sky:#7cc7ff; --warm:#ffc26b; --pink:#ff8fb1; --bad:#ff6b81;
+    --r:16px;
+    --sans:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    --display:"Space Grotesk","Inter",sans-serif;
+    --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:radial-gradient(1200px 700px at 80% -10%,rgba(124,199,255,.07),transparent 60%),var(--bg);
+    color:var(--ink);font-family:var(--sans);line-height:1.6;font-size:16px;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:860px;margin:0 auto;padding:0 22px}
+  h1,h2,h3,h4{font-family:var(--display);letter-spacing:-.02em;line-height:1.12;margin:0}
+  a{color:var(--sky)}
+  code,kbd{font-family:var(--mono);font-size:.88em}
+  .mint{color:var(--mint)} .sky{color:var(--sky)} .warm{color:var(--warm)} .pink{color:var(--pink)}
+
+  header.hero{padding:64px 0 30px;border-bottom:1px solid var(--line)}
+  .kicker{font-family:var(--mono);font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--sky)}
+  header.hero h1{font-size:clamp(34px,6vw,56px);margin:14px 0 0}
+  header.hero p.sub{color:var(--muted);font-size:19px;max-width:660px;margin:18px 0 0}
+  .meta{margin-top:22px;font-family:var(--mono);font-size:12.5px;color:var(--faint)}
+
+  nav.toc{margin:26px 0 0;display:flex;flex-wrap:wrap;gap:8px}
+  nav.toc a{font-family:var(--mono);font-size:12px;color:var(--muted);text-decoration:none;
+    border:1px solid var(--line);border-radius:999px;padding:6px 12px;background:var(--bg2)}
+  nav.toc a:hover{border-color:var(--sky);color:var(--ink)}
+
+  section{padding:46px 0;border-bottom:1px solid var(--line)}
+  section > .num{font-family:var(--mono);font-size:12px;color:var(--sky);letter-spacing:.1em}
+  section h2{font-size:clamp(26px,4vw,38px);margin:8px 0 0}
+  section > p.lede{color:var(--muted);font-size:17.5px;margin:14px 0 0;max-width:680px}
+  p{margin:16px 0 0} h3{margin-top:30px;font-size:21px} h4{margin-top:22px;font-size:16px;color:var(--warm)}
+  ul,ol{margin:14px 0 0;padding-left:22px} li{margin:7px 0}
+  strong{color:var(--ink)}
+
+  .card{background:linear-gradient(180deg,var(--panel),var(--bg2));border:1px solid var(--line);
+    border-radius:var(--r);padding:24px;margin-top:22px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:22px}
+  @media(max-width:680px){.grid2{grid-template-columns:1fr}}
+
+  .pill{display:inline-block;font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;
+    padding:4px 10px;border-radius:999px;border:1px solid var(--line2);color:var(--muted);background:var(--bg)}
+
+  .stack{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:22px}
+  @media(max-width:680px){.stack{grid-template-columns:1fr}}
+  .stk{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px}
+  .stk .e{font-size:26px} .stk h4{margin:8px 0 0;color:var(--ink);font-family:var(--display);font-size:17px}
+  .stk .role{font-family:var(--mono);font-size:11px;color:var(--sky);letter-spacing:.08em;text-transform:uppercase;margin-top:4px}
+  .stk p{font-size:14px;color:var(--muted);margin-top:8px}
+
+  table{width:100%;border-collapse:collapse;margin-top:18px;font-size:14.5px}
+  th,td{text-align:left;padding:11px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{font-family:var(--mono);font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--sky)}
+  td.k{color:var(--ink);font-weight:600;white-space:nowrap}
+  td .tag{font-family:var(--mono);font-size:11px;color:var(--faint)}
+
+  .callout{border-left:3px solid var(--warm);background:rgba(255,194,107,.06);padding:14px 18px;border-radius:0 12px 12px 0;margin-top:20px}
+  .callout.good{border-color:var(--mint);background:rgba(94,242,192,.06)}
+  .callout.bad{border-color:var(--bad);background:rgba(255,107,129,.07)}
+  .callout.sky{border-color:var(--sky);background:rgba(124,199,255,.06)}
+  .callout p:first-child{margin-top:0}
+
+  .copybank{background:#0b0f1c;border:1px dashed var(--line2);border-radius:12px;padding:16px 18px;margin-top:14px}
+  .copybank .lbl{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint)}
+  .copybank p{margin:6px 0 0;color:var(--ink)}
+  .copybank.short p{font-size:15px}
+
+  .do-dont{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:18px}
+  @media(max-width:680px){.do-dont{grid-template-columns:1fr}}
+  .dd{border-radius:12px;padding:16px 18px}
+  .dd.do{background:rgba(94,242,192,.06);border:1px solid rgba(94,242,192,.25)}
+  .dd.dont{background:rgba(255,107,129,.06);border:1px solid rgba(255,107,129,.25)}
+  .dd h4{margin:0 0 6px;color:var(--ink)} .dd.do h4::before{content:"✓ ";color:var(--mint)}
+  .dd.dont h4::before{content:"✕ ";color:var(--bad)}
+  .dd ul{padding-left:18px;margin-top:4px} .dd li{font-size:14px;color:var(--muted)}
+
+  ol.steps{counter-reset:s;list-style:none;padding:0;margin-top:18px}
+  ol.steps > li{counter-increment:s;position:relative;padding:0 0 0 46px;margin:18px 0}
+  ol.steps > li::before{content:counter(s);position:absolute;left:0;top:-2px;width:30px;height:30px;border-radius:50%;
+    background:var(--panel2);border:1px solid var(--line2);color:var(--sky);font-family:var(--mono);font-size:14px;
+    display:grid;place-items:center}
+  ol.steps b{color:var(--ink)}
+
+  .name-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:18px}
+  @media(max-width:680px){.name-grid{grid-template-columns:1fr}}
+  .nm{border:1px solid var(--line);border-radius:12px;padding:14px 16px;background:var(--panel)}
+  .nm .n{font-family:var(--display);font-size:19px;color:var(--ink)}
+  .nm .v{font-size:13.5px;color:var(--muted);margin-top:4px}
+
+  footer{padding:44px 0 70px;color:var(--faint);font-size:13.5px}
+  .tag{font-family:var(--mono);font-size:12px;color:var(--muted)}
+  .rec{display:inline-block;font-family:var(--mono);font-size:11px;color:var(--bg);background:var(--sky);
+    border-radius:6px;padding:2px 8px;font-weight:700;letter-spacing:.04em}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <span class="kicker">Strategy memo · internal · companion to patreon-strategy</span>
+    <h1>You weren't building a game.<br><span class="sky">You were starting a studio.</span></h1>
+    <p class="sub">The Patreon memo priced a tip jar around <em>one</em> game. But the real motivation — "I'd branch into other games" — is the thing that makes the money layer actually work. Reframing LinguaGuessr from a product into <strong>game #1 of a maker's catalog</strong>.</p>
+    <div class="meta">LinguaGuessr → the studio · lingua.levelbrook.com · portfolio reframe · v1 · 2026-06-04</div>
+    <nav class="toc">
+      <a href="#why">01 Why this is the fix</a>
+      <a href="#brand">02 The umbrella brand</a>
+      <a href="#genre">03 The house genre</a>
+      <a href="#slate">04 A starter slate</a>
+      <a href="#engine">05 The shared engine</a>
+      <a href="#portal">06 The portal &amp; cross-promo</a>
+      <a href="#money">07 What changes in the money layer</a>
+      <a href="#wall">08 The wall with Levelbrook</a>
+      <a href="#next">09 Do this next</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+
+<section id="why">
+  <span class="num">01</span>
+  <h2>Why a catalog fixes what a tip jar can't</h2>
+  <p class="lede">The single-game Patreon has a structural ceiling. The portfolio doesn't. Same effort, a different shape.</p>
+
+  <p>The Patreon memo is good — but it quietly assumes the patron keeps paying to support <em>LinguaGuessr</em>. That's a fragile premise. A player funds a free game out of a burst of delight; a month later the delight is spent, the game is the same game, and there's no fresh reason to stay subscribed. <strong>One game gives you one moment of goodwill and then asks you to live on its memory.</strong></p>
+
+  <p>What you actually described — branching into other games — is the missing renewable resource. When the patron is funding <strong>the maker</strong>, every new game is a brand-new hit of "oh, they made another one, I'm glad I'm part of this." The thing they're subscribed to keeps producing. That's exactly the relationship Patreon is built to monetize, and it's the difference between a number that plateaus and one that compounds.</p>
+
+  <div class="grid2">
+    <div class="card">
+      <span class="pill" style="border-color:var(--bad);color:var(--bad)">One-game tip jar</span>
+      <h3 style="margin-top:10px">A bucket</h3>
+      <p style="color:var(--muted)">One launch spike → a few coffees → silence. Patrons churn because nothing new arrives. The dev log promises a future the single game can't keep producing.</p>
+    </div>
+    <div class="card">
+      <span class="pill" style="border-color:var(--sky);color:var(--sky)">A maker's catalog</span>
+      <h3 style="margin-top:10px">A flywheel <span class="rec">the fix</span></h3>
+      <p style="color:var(--muted)">Each new game = a new Show-HN spike pointing at the <em>same</em> Patreon. Games market the patronage; the patronage funds the next game. Every release renews the reason to stay.</p>
+    </div>
+  </div>
+
+  <div class="callout sky">
+    <p><strong>The reframe in one line:</strong> stop selling "support LinguaGuessr." Start selling <strong>"fund the person who keeps making these weird little browser games"</strong> — and let LinguaGuessr be the proof-of-concept that you do, in fact, ship.</p>
+  </div>
+</section>
+
+<section id="brand">
+  <span class="num">02</span>
+  <h2>The umbrella brand — the one new decision</h2>
+  <p class="lede">If patrons fund the maker, the maker needs a name that outlives any single game. This is the only real new infrastructure the reframe demands.</p>
+
+  <p>Right now you have two names in play: <strong>LinguaGuessr</strong> (a game) and <strong>Levelbrook</strong> (the B2B consulting brand — keep it walled off, see §08). Neither can be the studio. You need a <em>third, anonymous, player-facing maker identity</em> — a tiny indie label that every game shares, that the Patreon is named after, and that the "Support" link points to.</p>
+
+  <p>It does three jobs: it gives the Patreon a home that isn't tied to one title, it lets each new game inherit instant recognition ("oh, the same people who made LinguaGuessr"), and it stays fully inside the anonymity rule — a label is, by definition, not a personal name.</p>
+
+  <h3>Candidate vibes (pick a direction, not a final word)</h3>
+  <p>The genre is small, perceptual, hand-made, slightly strange. The name should feel like a tiny workshop, not a corporation. A few directions to react to:</p>
+  <div class="name-grid">
+    <div class="nm"><div class="n">…Guessr family</div><div class="v">Lean into the format: a shared "—Guessr" suffix makes the catalog self-evidently one studio. The label could simply be the format's home (e.g. "the Guessr workshop"). Risk: ties the brand to one mechanic.</div></div>
+    <div class="nm"><div class="n">A workshop / lab name</div><div class="v">Something like "a tiny games lab" — evokes one person tinkering. Warm, human, format-agnostic so you're free to make non-guessing games later.</div></div>
+    <div class="nm"><div class="n">An object/animal mark</div><div class="v">A short, concrete, memorable noun (an animal, a small object) + "games." Easy logo, easy to say, carries no baggage, and reads as indie not enterprise.</div></div>
+    <div class="nm"><div class="n">A made-up word</div><div class="v">A coined, ownable, domain-available token. Maximum brand control, zero collision — but starts with zero meaning, so the games have to give it meaning.</div></div>
+  </div>
+  <div class="callout">
+    <p><strong>This is your call, not mine</strong> — it's a taste decision with your name on it (figuratively). The strategic requirement is only that it (a) isn't "LinguaGuessr," (b) isn't "Levelbrook," (c) is anonymous, and (d) is broad enough to cover games beyond guessing. Pick the vibe; I'll pressure-test domain/handle availability against the shortlist.</p>
+  </div>
+</section>
+
+<section id="genre">
+  <span class="num">03</span>
+  <h2>The house genre — why LinguaGuessr is a template, not a one-off</h2>
+  <p class="lede">You didn't accidentally make a hit-shaped thing. LinguaGuessr is a <em>formula</em> you can run again. Naming the formula is what makes a studio repeatable.</p>
+
+  <p>Strip LinguaGuessr to its bones and you get a pattern that's almost suspiciously reusable:</p>
+  <div class="stack">
+    <div class="stk">
+      <div class="e">🎯</div>
+      <div class="role">One mechanic</div>
+      <h4>Guess the X by Y</h4>
+      <p>A single perceptual judgment — language by ear. No tutorial needed. The whole game fits in one sentence, which is also its marketing.</p>
+    </div>
+    <div class="stk">
+      <div class="e">📅</div>
+      <div class="role">One habit</div>
+      <h4>A daily challenge</h4>
+      <p>The Wordle move: one puzzle a day, everyone gets the same one, a streak to protect. This is the retention engine — the reason someone comes back without you shipping anything.</p>
+    </div>
+    <div class="stk">
+      <div class="e">📤</div>
+      <div class="role">One loop</div>
+      <h4>A shareable score</h4>
+      <p>A spoiler-free result card ("🟩🟩⬜ I got 4/5") that begs to be posted. Free distribution baked into the win screen — every player is a channel.</p>
+    </div>
+  </div>
+
+  <p>That triad — <strong>one mechanic · one daily habit · one shareable result</strong> — is your house style. Any domain where a human can make a snap perceptual call becomes a candidate game. The corpus changes; the skeleton doesn't. That's why the second game is dramatically cheaper than the first (see §05), and why a studio is realistic for one person.</p>
+
+  <div class="callout good">
+    <p><strong>The strategic gift:</strong> these games are <em>cheap to make, cheap to host, and natively viral</em> — thin or no backend, a static bundle on Cloudflare Pages, and a share card doing your marketing. It's the rare format where a solo maker's economics actually close.</p>
+  </div>
+</section>
+
+<section id="slate">
+  <span class="num">04</span>
+  <h2>A starter slate — concrete next games</h2>
+  <p class="lede">Not a commitment, a menu. Each one runs the §03 formula and reuses the §05 engine. Ranked roughly by "reuses what you already have" × "has a built-in audience that overlaps your traffic."</p>
+
+  <table>
+    <tr><th>Game</th><th>The call</th><th>Why it fits</th><th>Reuse</th></tr>
+    <tr>
+      <td class="k">AccentGuessr</td>
+      <td>Which accent / dialect of <em>this</em> language?</td>
+      <td>Same audio corpus, harder mode. Closest possible sibling — arguably a LinguaGuessr mode you spin out as its own title.</td>
+      <td><span class="tag mint">~95%</span></td>
+    </tr>
+    <tr>
+      <td class="k">ScriptGuessr</td>
+      <td>What writing system / language is this <em>text</em>?</td>
+      <td>The visual cousin of LinguaGuessr. No audio pipeline at all — just rendered strings. Linguistics/typography crowd.</td>
+      <td><span class="tag mint">~80%</span></td>
+    </tr>
+    <tr>
+      <td class="k">CodeGuessr</td>
+      <td>Which programming language is this snippet?</td>
+      <td>Aimed straight at your HN/Reddit traffic — devs love guessing-game self-tests and share them hard. Pure text, trivially sourced.</td>
+      <td><span class="tag mint">~80%</span></td>
+    </tr>
+    <tr>
+      <td class="k">BirdGuessr</td>
+      <td>Which bird is making this call?</td>
+      <td>Audio engine reused 1:1. Massive, devoted niche (birders), open-licensed corpora (xeno-canto). Different audience = new top-of-funnel.</td>
+      <td><span class="tag warm">~70%</span></td>
+    </tr>
+    <tr>
+      <td class="k">CityGuessr (by ear)</td>
+      <td>Which city — from its street/transit ambience?</td>
+      <td>GeoGuessr's audience, your audio engine. Transit announcements + soundscapes. Strong share appeal.</td>
+      <td><span class="tag warm">~65%</span></td>
+    </tr>
+    <tr>
+      <td class="k">EraGuessr</td>
+      <td>What decade is this music clip from?</td>
+      <td>Audio engine reused; music is the most universally shareable corpus there is. Licensing is the catch — use clips you can clear.</td>
+      <td><span class="tag warm">~60%</span></td>
+    </tr>
+  </table>
+
+  <p>The top three (Accent, Script, Code) are nearly free to build on what exists and aim at audiences you already reach. The bottom three open <em>new</em> audiences (birders, geo people, music people) — each one a fresh spike at the same Patreon. A realistic cadence is <strong>one new title a quarter</strong>: frequent enough to keep patrons fed, slow enough to stay a joy.</p>
+
+  <div class="callout bad">
+    <p><strong>The one trap:</strong> don't let "studio" become a content treadmill. The dev-log memo's warning still holds double here — the goal is a <em>handful of beloved games shipped at a humane pace</em>, not a churn quota. If a quarter is quiet, a good dev log about <em>why</em> the next one is taking longer keeps patrons happier than a rushed dud.</p>
+  </div>
+</section>
+
+<section id="engine">
+  <span class="num">05</span>
+  <h2>The shared engine — build the skeleton once</h2>
+  <p class="lede">The reason a solo studio is feasible: game #2 is mostly game #1 with a different corpus. Factor the skeleton out and each new title is days, not months.</p>
+
+  <p>LinguaGuessr already contains nearly every reusable part. The move is to lift the game-agnostic pieces into a shared core that every future title imports, leaving each game to supply only its corpus and its scoring rule.</p>
+
+  <div class="do-dont">
+    <div class="dd do">
+      <h4>Build once, reuse forever</h4>
+      <ul>
+        <li><strong>Daily-challenge engine</strong> — deterministic "puzzle of the day," streak tracking, local-storage state (you have <code>engine.js</code>).</li>
+        <li><strong>Round/scoring loop</strong> — 5 rounds, guess → reveal → score, the whole flow shell.</li>
+        <li><strong>Share-card generator</strong> — the spoiler-free emoji result. Your single most important growth asset.</li>
+        <li><strong>Support modal + tier ladder</strong> — <code>support.jsx</code>, already written, now points at the <em>studio</em> Patreon, not one game's.</li>
+        <li><strong>Analytics beacon</strong> — the Worker → Analytics Engine setup, shared across all games' domains.</li>
+        <li><strong>The "Engineered/indie" design system</strong> — type, color, components.</li>
+      </ul>
+    </div>
+    <div class="dd dont">
+      <h4>Per-game, all that's left</h4>
+      <ul>
+        <li>The <strong>corpus</strong> (clips/snippets/images + a manifest) and its loader.</li>
+        <li>The <strong>one scoring rule</strong> (exact match? region distance? family tree?).</li>
+        <li>The <strong>reveal panel</strong> content (what you teach after each guess).</li>
+        <li>A <strong>name, a color accent, and a splash.</strong></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="callout">
+    <p><strong>Structure it as a shared package + thin games.</strong> A small monorepo (or a published-private core lib) holding the engine, share card, support layer, and design system; each game a thin app that imports it and ships a corpus. Bonus: a fix to the streak logic or the share card improves <em>every</em> game at once. This is the leverage that makes the catalog one person's reasonable life instead of six jobs.</p>
+  </div>
+</section>
+
+<section id="portal">
+  <span class="num">06</span>
+  <h2>The portal &amp; cross-promotion — games that sell each other</h2>
+  <p class="lede">A catalog's hidden superpower: each game is a recruiting station for the others. Wire that, and your traffic compounds instead of resetting per launch.</p>
+
+  <ul>
+    <li><strong>A studio portal page</strong> — one URL listing every game with a one-line pitch and a play button. The Patreon, the dev log, and "made by [studio]" all live here. This is the home base the maker identity points to.</li>
+    <li><strong>A "more games by us" rail</strong> on every game's end screen — right next to the Support strip. A player who just enjoyed LinguaGuessr is the single most likely person to try CodeGuessr. Catch them at peak delight.</li>
+    <li><strong>One shared Support layer</strong> — every game's "Support" opens the <em>same</em> modal pointing at the <em>same</em> Patreon/BMC/BTC. Six games, one funnel. A patron acquired through BirdGuessr funds LinguaGuessr's next corpus and vice versa.</li>
+    <li><strong>One dev log, all games</strong> — patrons follow the <em>studio's</em> output, so a quiet month on one game is covered by progress on another. The log never goes dark.</li>
+  </ul>
+
+  <div class="callout good">
+    <p><strong>The upgraded flywheel:</strong> ship game N → it spikes on HN/Reddit → its end screen converts coffees/patrons <em>and</em> funnels players into games 1…N-1 → those games' end screens funnel back → the whole catalog's traffic and patron base ratchets up with every release. A one-game flywheel turns once per launch; a catalog's turns N times.</p>
+  </div>
+</section>
+
+<section id="money">
+  <span class="num">07</span>
+  <h2>What changes in the money layer</h2>
+  <p class="lede">Good news: almost nothing. The Patreon memo's tiers were already secretly written for a studio. You're just promoting the subtext to the headline.</p>
+
+  <p>Re-read the existing tiers and you'll notice they already lean on the catalog — "early access to <em>every new game I ship</em>," "more weird little games," "vote on the next <em>game idea</em>." The reframe doesn't rewrite them; it makes the catalog the <strong>spine</strong> instead of a perk buried at $15.</p>
+
+  <table>
+    <tr><th>Element</th><th>Before (one game)</th><th>After (studio)</th></tr>
+    <tr><td class="k">Patreon identity</td><td>"Support LinguaGuessr"</td><td><span class="mint">"Fund the studio / the maker"</span> — named after the umbrella brand</td></tr>
+    <tr><td class="k">The $15 anchor</td><td>"Early access to new games" (a nice-to-have)</td><td><span class="mint">The core promise</span> — the whole pitch is "you get every game first"</td></tr>
+    <tr><td class="k">The micro-story</td><td>LinguaGuessr's origin</td><td>The maker's mission to make many free, hand-built games (LinguaGuessr is the first proof)</td></tr>
+    <tr><td class="k">Dev log</td><td>One game's progress</td><td>The studio's progress across all titles — never goes quiet</td></tr>
+    <tr><td class="k">Support placement</td><td>LinguaGuessr's end screen</td><td>Every game's end screen → one shared modal → one funnel</td></tr>
+    <tr><td class="k">Social proof</td><td>"47 fund this game"</td><td><span class="mint">"47 fund this studio"</span> — and "ships products people pay to support" reads even better on the consulting side</td></tr>
+  </table>
+
+  <div class="callout sky">
+    <p><strong>Net:</strong> the implementation already standing by in <code>support.jsx</code> barely moves. The <code>SUPPORT</code> object now lives in the shared core and carries studio-level handles. You don't rebuild the money layer — you re-point it at a brand that can keep producing reasons to pay.</p>
+  </div>
+</section>
+
+<section id="wall">
+  <span class="num">08</span>
+  <h2>The wall with Levelbrook holds — and gets cleaner</h2>
+  <p class="lede">Three identities now, not two. The separation the anonymity rule already demands does exactly the right thing here.</p>
+
+  <div class="stack">
+    <div class="stk">
+      <div class="e">🏢</div>
+      <div class="role">B2B · real money</div>
+      <h4>Levelbrook</h4>
+      <p>The senior Rails consulting practice. Five-figure engagements, "Hire us," consulting.levelbrook.com. Untouched by any of this.</p>
+    </div>
+    <div class="stk">
+      <div class="e">🎮</div>
+      <div class="role">Player-facing · indie</div>
+      <h4>The studio</h4>
+      <p>The new anonymous maker label. Owns the games, the Patreon, the dev log. Warm, first-person, format-agnostic.</p>
+    </div>
+    <div class="stk">
+      <div class="e">🎧</div>
+      <div class="role">A product</div>
+      <h4>LinguaGuessr (et al.)</h4>
+      <p>Individual titles under the studio. Each has its own name/accent but shares the engine, the support funnel, and the maker brand.</p>
+    </div>
+  </div>
+
+  <p>LinguaGuessr currently sits on a Levelbrook subdomain (<code>lingua.levelbrook.com</code>) and wears a "demo by Levelbrook" hat for the consulting funnel. That's fine to keep — but as the catalog grows, the games increasingly want to live under the <strong>studio's own domain</strong>, with the "this maker also consults as Levelbrook" link being the quiet bridge, not the frame. The consulting funnel still benefits ("look, real shipped products with paying fans") without the indie voice being subordinate to the suit.</p>
+
+  <div class="callout">
+    <p><strong>Open decision for you:</strong> do the games eventually migrate to a standalone studio domain, or stay as Levelbrook subdomains? Not urgent — LinguaGuessr stays put for now — but worth deciding before game #3, because it sets where the cross-promo portal lives and what the share cards say.</p>
+  </div>
+</section>
+
+<section id="next">
+  <span class="num">09</span>
+  <h2>Do this next</h2>
+  <p class="lede">The reframe costs almost no new building — it's mostly a naming decision and a refactor you'd want anyway.</p>
+  <ol class="steps">
+    <li><b>Pick the studio vibe</b> (§02). Tell me a direction; I'll check domains + Patreon/BMC/social handle availability against a shortlist.</li>
+    <li><b>Re-point the Patreon</b> from "LinguaGuessr" to the studio. Same four tiers; promote "every new game first" to the headline; rewrite the micro-story as the maker's mission.</li>
+    <li><b>Factor out the shared core</b> (§05) — lift engine, share card, support modal, analytics, and design system into one importable package. Do this <em>with</em> LinguaGuessr so game #2 is days of work.</li>
+    <li><b>Build game #2 from the top of the slate</b> (AccentGuessr or CodeGuessr — highest reuse, audience you already reach). Ship it as the proof the studio is real.</li>
+    <li><b>Stand up the portal + cross-promo rail</b> (§06) so the two games start funneling into each other and into one Patreon.</li>
+    <li><b>Relaunch as a studio</b> — "Show HN: I made a second guessing game" lands the catalog story, and every spike now hits a funnel built to compound.</li>
+  </ol>
+  <div class="callout good">
+    <p><strong>The honest summary:</strong> you already did the hard part — you proved you can ship a beloved, viral, hand-made browser game. The Patreon memo just priced that proof too narrowly. Sell the <em>habit of shipping them</em>, not the one you've shipped, and the money layer finally has something worth subscribing to.</p>
+  </div>
+</section>
+
+</main>
+
+<footer class="wrap">
+  <span class="tag">The studio reframe · companion to patreon-strategy.html · internal memo · not for outward publication</span>
+</footer>
+
+</body>
+</html>

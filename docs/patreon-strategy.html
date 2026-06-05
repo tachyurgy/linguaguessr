@@ -1,0 +1,521 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LinguaGuessr — Patreon & Tip-Jar Strategy</title>
+<style>
+  :root{
+    --bg:#0f1322; --bg2:#161c30; --panel:#1c2440; --panel2:#252e4e;
+    --line:#2c3760; --line2:#3a467a;
+    --ink:#f1f5ff; --muted:#a6b2d4; --faint:#7986ac;
+    --mint:#5ef2c0; --sky:#7cc7ff; --warm:#ffc26b; --pink:#ff8fb1; --bad:#ff6b81;
+    --r:16px;
+    --sans:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    --display:"Space Grotesk","Inter",sans-serif;
+    --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:radial-gradient(1200px 700px at 80% -10%,rgba(94,242,192,.06),transparent 60%),var(--bg);
+    color:var(--ink);font-family:var(--sans);line-height:1.6;font-size:16px;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:860px;margin:0 auto;padding:0 22px}
+  h1,h2,h3,h4{font-family:var(--display);letter-spacing:-.02em;line-height:1.12;margin:0}
+  a{color:var(--sky)}
+  code,kbd{font-family:var(--mono);font-size:.88em}
+  .mint{color:var(--mint)} .sky{color:var(--sky)} .warm{color:var(--warm)} .pink{color:var(--pink)}
+
+  header.hero{padding:64px 0 30px;border-bottom:1px solid var(--line)}
+  .kicker{font-family:var(--mono);font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--mint)}
+  header.hero h1{font-size:clamp(34px,6vw,56px);margin:14px 0 0}
+  header.hero p.sub{color:var(--muted);font-size:19px;max-width:640px;margin:18px 0 0}
+  .meta{margin-top:22px;font-family:var(--mono);font-size:12.5px;color:var(--faint)}
+
+  nav.toc{margin:26px 0 0;display:flex;flex-wrap:wrap;gap:8px}
+  nav.toc a{font-family:var(--mono);font-size:12px;color:var(--muted);text-decoration:none;
+    border:1px solid var(--line);border-radius:999px;padding:6px 12px;background:var(--bg2)}
+  nav.toc a:hover{border-color:var(--mint);color:var(--ink)}
+
+  section{padding:46px 0;border-bottom:1px solid var(--line)}
+  section > .num{font-family:var(--mono);font-size:12px;color:var(--mint);letter-spacing:.1em}
+  section h2{font-size:clamp(26px,4vw,38px);margin:8px 0 0}
+  section > p.lede{color:var(--muted);font-size:17.5px;margin:14px 0 0;max-width:680px}
+  p{margin:16px 0 0} h3{margin-top:30px;font-size:21px} h4{margin-top:22px;font-size:16px;color:var(--warm)}
+  ul,ol{margin:14px 0 0;padding-left:22px} li{margin:7px 0}
+  strong{color:var(--ink)}
+
+  .card{background:linear-gradient(180deg,var(--panel),var(--bg2));border:1px solid var(--line);
+    border-radius:var(--r);padding:24px;margin-top:22px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:22px}
+  @media(max-width:680px){.grid2{grid-template-columns:1fr}}
+
+  .pill{display:inline-block;font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;
+    padding:4px 10px;border-radius:999px;border:1px solid var(--line2);color:var(--muted);background:var(--bg)}
+
+  /* monetization stack */
+  .stack{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:22px}
+  @media(max-width:680px){.stack{grid-template-columns:1fr}}
+  .stk{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px}
+  .stk .e{font-size:26px} .stk h4{margin:8px 0 0;color:var(--ink);font-family:var(--display);font-size:17px}
+  .stk .role{font-family:var(--mono);font-size:11px;color:var(--mint);letter-spacing:.08em;text-transform:uppercase;margin-top:4px}
+  .stk p{font-size:14px;color:var(--muted);margin-top:8px}
+
+  /* tiers */
+  .tier{border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin-top:14px;background:var(--panel);
+    display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center}
+  .tier.feat{border-color:var(--mint);box-shadow:0 0 0 1px rgba(94,242,192,.25),0 18px 50px -30px rgba(94,242,192,.4)}
+  .tier .te{font-size:30px}
+  .tier .tn{font-family:var(--display);font-size:20px}
+  .tier .tp{font-family:var(--display);font-size:24px;color:var(--mint);text-align:right;white-space:nowrap}
+  .tier .tp small{font-size:13px;color:var(--faint)}
+  .tier .desc{grid-column:1 / -1;color:var(--muted);font-size:14.5px;margin-top:2px}
+  .tier .flag{grid-column:1 / -1;font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--warm)}
+
+  table{width:100%;border-collapse:collapse;margin-top:18px;font-size:14.5px}
+  th,td{text-align:left;padding:11px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{font-family:var(--mono);font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--mint)}
+  td.k{color:var(--ink);font-weight:600;white-space:nowrap}
+
+  .callout{border-left:3px solid var(--warm);background:rgba(255,194,107,.06);padding:14px 18px;border-radius:0 12px 12px 0;margin-top:20px}
+  .callout.good{border-color:var(--mint);background:rgba(94,242,192,.06)}
+  .callout.bad{border-color:var(--bad);background:rgba(255,107,129,.07)}
+  .callout p:first-child{margin-top:0}
+
+  .copybank{background:#0b0f1c;border:1px dashed var(--line2);border-radius:12px;padding:16px 18px;margin-top:14px}
+  .copybank .lbl{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint)}
+  .copybank p{margin:6px 0 0;color:var(--ink)}
+  .copybank.short p{font-size:15px}
+
+  .do-dont{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:18px}
+  @media(max-width:680px){.do-dont{grid-template-columns:1fr}}
+  .dd{border-radius:12px;padding:16px 18px}
+  .dd.do{background:rgba(94,242,192,.06);border:1px solid rgba(94,242,192,.25)}
+  .dd.dont{background:rgba(255,107,129,.06);border:1px solid rgba(255,107,129,.25)}
+  .dd h4{margin:0 0 6px;color:var(--ink)} .dd.do h4::before{content:"✓ ";color:var(--mint)}
+  .dd.dont h4::before{content:"✕ ";color:var(--bad)}
+  .dd ul{padding-left:18px;margin-top:4px} .dd li{font-size:14px;color:var(--muted)}
+
+  ol.steps{counter-reset:s;list-style:none;padding:0;margin-top:18px}
+  ol.steps > li{counter-increment:s;position:relative;padding:0 0 0 46px;margin:18px 0}
+  ol.steps > li::before{content:counter(s);position:absolute;left:0;top:-2px;width:30px;height:30px;border-radius:50%;
+    background:var(--panel2);border:1px solid var(--line2);color:var(--mint);font-family:var(--mono);font-size:14px;
+    display:grid;place-items:center}
+  ol.steps b{color:var(--ink)}
+
+  footer{padding:44px 0 70px;color:var(--faint);font-size:13.5px}
+  .tag{font-family:var(--mono);font-size:12px;color:var(--muted)}
+  .rec{display:inline-block;font-family:var(--mono);font-size:11px;color:var(--bg);background:var(--mint);
+    border-radius:6px;padding:2px 8px;font-weight:700;letter-spacing:.04em}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <span class="kicker">Strategy memo · internal</span>
+    <h1>Getting paid to make<br><span class="mint">browser games.</span></h1>
+    <p class="sub">How to frame, price, and launch a Patreon + tip-jar around LinguaGuessr — the indie-maker money layer that runs <em>alongside</em> the Levelbrook consulting funnel without poisoning it.</p>
+    <div class="meta">LinguaGuessr · lingua.levelbrook.com · monetization plan · v1</div>
+    <nav class="toc">
+      <a href="#frame">01 The framing</a>
+      <a href="#voice">02 Voice</a>
+      <a href="#stack">03 The money stack</a>
+      <a href="#tiers">04 Patreon tiers</a>
+      <a href="#deliver">05 What you owe patrons</a>
+      <a href="#placement">06 On-site placement</a>
+      <a href="#launch">07 Launch & growth</a>
+      <a href="#numbers">08 Real numbers</a>
+      <a href="#btc">09 Bitcoin in 3 ways</a>
+      <a href="#copy">10 Copy bank</a>
+      <a href="#next">11 Do this next</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+
+<section id="frame">
+  <span class="num">01</span>
+  <h2>The framing — and the one tension to manage</h2>
+  <p class="lede">The whole strategy rests on a persona choice. Get this right and the rest writes itself.</p>
+
+  <p>LinguaGuessr currently wears a <strong>B2B suit</strong>: "a demo by Levelbrook, a senior software consulting practice," with a <em>Hire&nbsp;us</em> button. That funnel sells <strong>five-figure engagements to companies</strong>. A Patreon sells <strong>$3–$35/mo affection to individual players</strong>. Those are two different audiences with two different wallets — and a consulting firm begging for coffee money looks desperate, while an indie maker who happens to also freelance looks <em>normal</em>.</p>
+
+  <p>So you run <strong>two voices on one site</strong>, cleanly separated:</p>
+  <div class="grid2">
+    <div class="card">
+      <span class="pill">For companies</span>
+      <h3 style="margin-top:10px">"Hire us"</h3>
+      <p style="color:var(--muted)">Stays exactly as-is. Professional, Levelbrook-branded, points at consulting.levelbrook.com. This is the real money.</p>
+    </div>
+    <div class="card">
+      <span class="pill" style="border-color:var(--mint);color:var(--mint)">For players</span>
+      <h3 style="margin-top:10px">"Keep me building" <span class="rec">indie voice</span></h3>
+      <p style="color:var(--muted)">First-person, anonymous, warm. "I make weird little games — chip in if you liked this." Coffee, Patreon, Bitcoin.</p>
+    </div>
+  </div>
+
+  <div class="callout good">
+    <p><strong>The mental model:</strong> the player never needs to know the two are the same person. To a company, you're a practice. To a player, you're "the one person who made this." Both are true. The anonymity rule (no real name anywhere) actually <em>helps</em> here — the indie persona is just "the maker."</p>
+  </div>
+
+  <h3>The one-line pitch (memorize this)</h3>
+  <div class="copybank short">
+    <span class="lbl">Core pitch</span>
+    <p>"I make small, strange, lovingly-built browser games — no ads, no trackers, no investors. If this one made your day a little better, you can keep me fueled and chasing the next."</p>
+  </div>
+  <p>Every other piece of copy is a remix of that sentence. It does three jobs at once: <strong>establishes scarcity</strong> (one person, hand-made), <strong>names the values</strong> (no ads/tracking/VC — the things players hate), and <strong>makes a small, guilt-free ask</strong> (a coffee, not a salary).</p>
+</section>
+
+<section id="voice">
+  <span class="num">02</span>
+  <h2>Voice &amp; positioning</h2>
+  <p class="lede">People don't fund software. They fund a <em>person with a mission</em> they want to see continue.</p>
+
+  <p>The thing patrons are actually buying is the feeling of <strong>"I'm keeping something good alive."</strong> Your job in the copy is to make the mission legible and the maker human — without ever whining.</p>
+
+  <div class="do-dont">
+    <div class="dd do">
+      <h4>Do</h4>
+      <ul>
+        <li>Be specific about where money goes ("more clips, more languages, more games").</li>
+        <li>Lead with the gift you already gave them (a free game they enjoyed), then ask.</li>
+        <li>Sound like a maker on a roll, not a creator in crisis.</li>
+        <li>Name the enemy: ads, tracking, dark patterns, VC enshittification.</li>
+        <li>Keep the ask tiny and reversible ("a coffee," "cancel anytime").</li>
+      </ul>
+    </div>
+    <div class="dd dont">
+      <h4>Don't</h4>
+      <ul>
+        <li>Guilt-trip ("if you don't support me this dies"). Reads as manipulation.</li>
+        <li>Mention rent, bills, or hardship. Pity converts worse than momentum.</li>
+        <li>Use corporate/consulting language ("solutions," "engagements") in the player ask.</li>
+        <li>Over-promise rewards you can't sustain (daily videos, custom games).</li>
+        <li>Beg on every screen. One warm ask at the right moment beats ten nags.</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>The micro-story (use on the Patreon page + About)</h3>
+  <div class="copybank">
+    <span class="lbl">~80-word origin</span>
+    <p>"LinguaGuessr started as a weekend experiment: could you guess a language just by ear? It turned into a machine-verified corpus of real speech from 40+ languages, a daily challenge, and a tiny obsession. I build things like this because the web used to be full of weird, free, hand-made stuff — and I want to keep making some. Patreon is how I buy myself the time to do it."</p>
+  </div>
+</section>
+
+<section id="stack">
+  <span class="num">03</span>
+  <h2>The money stack — three rails, three jobs</h2>
+  <p class="lede">Don't think of these as competitors. Each one catches a different kind of person at a different moment.</p>
+
+  <div class="stack">
+    <div class="stk">
+      <div class="e">☕</div>
+      <div class="role">Impulse · one-time</div>
+      <h4>Buy Me a Coffee</h4>
+      <p>The frictionless "that was fun, here's $5" tap. No commitment, no account for them. Catches the 95% who'll never subscribe to anything but will toss a coin. <strong>Your highest-volume rail.</strong></p>
+    </div>
+    <div class="stk">
+      <div class="e">🎟️</div>
+      <div class="role">Loyalty · recurring</div>
+      <h4>Patreon</h4>
+      <p>The 2–3% who love it enough to fund it monthly. Small in count, but <strong>this is the only predictable income</strong> — the number that lets you say "I can afford to keep building." The strategic core.</p>
+    </div>
+    <div class="stk">
+      <div class="e">₿</div>
+      <div class="role">Niche · crypto</div>
+      <h4>Bitcoin tip jar</h4>
+      <p>A small but real slice of a tech/HN/Reddit audience <em>prefers</em> crypto and will tip more, anonymously, when it's the path of least resistance. Near-zero effort to add. <strong>Pure upside.</strong></p>
+    </div>
+  </div>
+
+  <div class="callout">
+    <p><strong>Why all three, not just one:</strong> Buy Me a Coffee also <em>does</em> monthly memberships, so people ask "why both?" Answer: Patreon is the <em>brand</em> creators recognize and trust for recurring support, has better tiers/community tooling, and is where you build a public "X patrons" number that becomes social proof. BMC is the low-friction one-time catcher. Use BMC for coffees, Patreon for membership. Don't split memberships across both.</p>
+  </div>
+</section>
+
+<section id="tiers">
+  <span class="num">04</span>
+  <h2>The Patreon tier ladder</h2>
+  <p class="lede">Four tiers. Priced on a psychological ladder, not a cost ladder. The middle one is the target.</p>
+
+  <div class="tier">
+    <span class="te">☕</span><span class="tn">Espresso</span><span class="tp">$3<small>/mo</small></span>
+    <span class="desc">You keep the lights on. Name in the credits + the dev log where I post what I'm building next.</span>
+  </div>
+  <div class="tier">
+    <span class="te">🗺️</span><span class="tn">Cartographer</span><span class="tp">$7<small>/mo</small></span>
+    <span class="desc">Everything above — plus a vote on which languages &amp; modes come next, and work-in-progress peeks first.</span>
+  </div>
+  <div class="tier feat">
+    <span class="flag">★ most popular — design everything to point here</span>
+    <span class="te">🎧</span><span class="tn">Polyglot</span><span class="tp">$15<small>/mo</small></span>
+    <span class="desc">Everything above — plus early access to every new game I ship, and I'll genuinely chase down any language or clip you want in the corpus.</span>
+  </div>
+  <div class="tier">
+    <span class="te">💎</span><span class="tn">Patron</span><span class="tp">$35<small>/mo</small></span>
+    <span class="desc">Everything above — your name on the supporters wall, a real thank-you, and a direct line to request a feature and have it actually happen.</span>
+  </div>
+
+  <h3>Exactly what you promise at each tier</h3>
+  <p>Tiers are <strong>cumulative</strong> — each one is "everything below, plus one new thing." Every promise here is deliberately chosen to cost you <em>≈nothing per extra patron</em> (or to scale), so 5 patrons and 500 patrons are the same workload. Read the "costs you" line on each — that's the part that protects you.</p>
+
+  <div class="card">
+    <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap">
+      <span style="font-size:26px">☕</span>
+      <h4 style="color:var(--ink);font-size:19px;margin:0">Espresso — $3/mo</h4>
+      <span class="pill">"thank you + a seat at the table"</span>
+    </div>
+    <p style="margin-top:12px"><strong>You promise:</strong></p>
+    <ul>
+      <li>Their name in the in-game <strong>credits / supporters list</strong> (refreshed monthly).</li>
+      <li>Access to the <strong>patron-only dev log</strong> — 1–2 short posts a month: what shipped, what's next, a screenshot.</li>
+      <li>A patron badge/shout-out if you ever add comments or a Discord.</li>
+    </ul>
+    <p class="tag" style="color:var(--mint);margin-top:10px">Costs you: one name in a list + the posts you'd want to write anyway. Zero per-patron time.</p>
+  </div>
+
+  <div class="card">
+    <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap">
+      <span style="font-size:26px">🗺️</span>
+      <h4 style="color:var(--ink);font-size:19px;margin:0">Cartographer — $7/mo</h4>
+      <span class="pill">"a say in where it goes"</span>
+    </div>
+    <p style="margin-top:12px"><strong>Everything in Espresso, plus you promise:</strong></p>
+    <ul>
+      <li>A <strong>vote in monthly polls</strong> — next language, next mode, next game idea.</li>
+      <li><strong>Work-in-progress previews</strong>: screenshots and early builds posted to patrons before they go public.</li>
+    </ul>
+    <p class="tag" style="color:var(--mint);margin-top:10px">Costs you: a 5-minute poll + posting a screenshot you already have. Scales to any patron count.</p>
+  </div>
+
+  <div class="card" style="border-color:var(--mint);box-shadow:0 0 0 1px rgba(94,242,192,.2)">
+    <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap">
+      <span style="font-size:26px">🎧</span>
+      <h4 style="color:var(--ink);font-size:19px;margin:0">Polyglot — $15/mo</h4>
+      <span class="pill" style="border-color:var(--mint);color:var(--mint)">★ target tier</span>
+    </div>
+    <p style="margin-top:12px"><strong>Everything above, plus you promise:</strong></p>
+    <ul>
+      <li><strong>Early access</strong> to every new game / mode you ship — roughly a week before the public.</li>
+      <li><strong>"I'll chase your request":</strong> suggest a language or clip and you'll genuinely try to get it into the corpus. <span class="warm">Word it as best-effort — "I'll try," never "I will."</span></li>
+    </ul>
+    <p class="tag" style="color:var(--mint);margin-top:10px">Costs you: share a link a week early (free) + best-effort requests you were sourcing anyway.</p>
+  </div>
+
+  <div class="card">
+    <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap">
+      <span style="font-size:26px">💎</span>
+      <h4 style="color:var(--ink);font-size:19px;margin:0">Patron — $35/mo</h4>
+      <span class="pill">"on the wall + a real line to me"</span>
+    </div>
+    <p style="margin-top:12px"><strong>Everything above, plus you promise:</strong></p>
+    <ul>
+      <li>Their name on a <strong>permanent supporters wall</strong> on the site (not just monthly credits).</li>
+      <li>A <strong>personal thank-you</strong> note when they join.</li>
+      <li><strong>One feature request taken seriously per quarter</strong> — if it's feasible, you'll actually build it.</li>
+    </ul>
+    <p class="tag" style="color:var(--mint);margin-top:10px">Costs you: real time — but few patrons reach this tier, and the cap ("one per quarter, if feasible") keeps it bounded.</p>
+  </div>
+
+  <h3>The cumulative reward matrix</h3>
+  <p>What each tier unlocks, at a glance — cumulative, so a column inherits everything to its left.</p>
+  <table>
+    <tr><th>Reward</th><th>☕ $3</th><th>🗺️ $7</th><th>🎧 $15</th><th>💎 $35</th></tr>
+    <tr><td class="k">Name in monthly credits</td><td class="mint">✓</td><td class="mint">✓</td><td class="mint">✓</td><td class="mint">✓</td></tr>
+    <tr><td class="k">Patron-only dev log</td><td class="mint">✓</td><td class="mint">✓</td><td class="mint">✓</td><td class="mint">✓</td></tr>
+    <tr><td class="k">Vote in roadmap polls</td><td class="faint">—</td><td class="mint">✓</td><td class="mint">✓</td><td class="mint">✓</td></tr>
+    <tr><td class="k">Work-in-progress previews</td><td class="faint">—</td><td class="mint">✓</td><td class="mint">✓</td><td class="mint">✓</td></tr>
+    <tr><td class="k">Early access to new games</td><td class="faint">—</td><td class="faint">—</td><td class="mint">✓</td><td class="mint">✓</td></tr>
+    <tr><td class="k">"I'll chase your clip/language" (best-effort)</td><td class="faint">—</td><td class="faint">—</td><td class="mint">✓</td><td class="mint">✓</td></tr>
+    <tr><td class="k">Name on permanent supporters wall</td><td class="faint">—</td><td class="faint">—</td><td class="faint">—</td><td class="mint">✓</td></tr>
+    <tr><td class="k">Personal thank-you</td><td class="faint">—</td><td class="faint">—</td><td class="faint">—</td><td class="mint">✓</td></tr>
+    <tr><td class="k">1 feature request/quarter (if feasible)</td><td class="faint">—</td><td class="faint">—</td><td class="faint">—</td><td class="mint">✓</td></tr>
+  </table>
+
+  <h4>The four rules of what you promise</h4>
+  <ol>
+    <li><strong>Only promise what costs ≈0 per patron, or scales.</strong> Credits, dev logs, polls, early links — all of these are the same effort whether 5 or 5,000 people pay.</li>
+    <li><strong>Word every time-based promise as best-effort.</strong> "I'll try to add your language," not "I will." A guarantee you can't keep churns patrons faster than no promise at all.</li>
+    <li><strong>Cap the one expensive promise.</strong> The $35 feature request is bounded to "one per quarter, if feasible." That's the only tier that touches your time, and it's deliberately rate-limited.</li>
+    <li><strong>Under-promise, over-deliver.</strong> The dev log is the real retention driver — show up twice a month and patrons stay. Surprise extras (a shout-out, a clip someone asked for) buy more goodwill than any tier perk.</li>
+  </ol>
+
+  <div class="callout bad">
+    <p><strong>Never promise these</strong> — they scale linearly with patron count and will make you resent the whole thing: custom/personal games, scheduled 1:1 calls, physical merch, daily content, anything "exclusive" that paywalls part of the actual game, or hard guarantees ("every requested language <em>will</em> be added"). Every one of these is a trap that turns a hobby into an unpaid obligation.</p>
+  </div>
+
+  <h3>The pricing psychology</h3>
+  <ul>
+    <li><strong>$3 floor, not $1.</strong> A dollar tier attracts the highest-maintenance patrons for the least money. $3 filters for people who actually value it and barely feel it.</li>
+    <li><strong>$15 is the anchor target.</strong> Make it visibly "most popular," give it the best perceived value jump, and let $35 exist mainly to make $15 look reasonable (the classic decoy — most "Patron" buyers were going to be your superfans anyway).</li>
+    <li><strong>Each tier = "everything above + one new thing."</strong> Cumulative tiers feel generous and are easier to deliver than bespoke per-tier rewards.</li>
+    <li><strong>Annual option:</strong> turn on Patreon's annual billing (≈2 months free). Locks in cash and cuts churn.</li>
+  </ul>
+
+  <div class="callout bad">
+    <p><strong>Trap to avoid:</strong> don't paywall the <em>game</em>. LinguaGuessr stays 100% free forever. Patrons fund the <em>future</em> (new games, new languages, your time) and get <em>nice-to-haves</em> (votes, early access, credit) — never access to the thing that's already public. Paywalling a free game kills the goodwill that drives the donations.</p>
+  </div>
+</section>
+
+<section id="deliver">
+  <span class="num">05</span>
+  <h2>What you actually owe patrons (keep it sustainable)</h2>
+  <p class="lede">The #1 way creators burn out is over-promising rewards. Design rewards that cost you ~nothing to deliver.</p>
+
+  <table>
+    <tr><th>Reward</th><th>Real effort</th><th>Verdict</th></tr>
+    <tr><td class="k">Name in credits / supporters wall</td><td>One line in a list, updated occasionally</td><td class="mint">Free. Always include.</td></tr>
+    <tr><td class="k">Dev log posts</td><td>1–2 short posts/month — what you shipped, what's next, a screenshot</td><td class="mint">Cheap. This <em>is</em> the product.</td></tr>
+    <tr><td class="k">Vote on next language/mode</td><td>A Patreon poll, 5 min</td><td class="mint">Free + makes them feel ownership.</td></tr>
+    <tr><td class="k">Early access</td><td>Share a link a week early</td><td class="warm">Easy, but only if you ship regularly.</td></tr>
+    <tr><td class="k">"Chase your requested clip/language"</td><td>Best-effort, not a guarantee — word it that way</td><td class="warm">Fine if framed as "I'll try."</td></tr>
+    <tr><td class="k">Custom games / 1:1 calls / merch</td><td>Hours per patron, doesn't scale</td><td class="bad">Avoid. This is how you start hating it.</td></tr>
+  </table>
+
+  <div class="callout">
+    <p><strong>The honest truth about reward delivery:</strong> the single highest-retention "reward" is simply <strong>posting a dev log twice a month</strong> so patrons see the thing is alive and they're part of it. If you do nothing else, do that. Patrons churn when it goes quiet, not when rewards are thin.</p>
+  </div>
+</section>
+
+<section id="placement">
+  <span class="num">06</span>
+  <h2>On-site placement — where &amp; when to ask</h2>
+  <p class="lede">Timing beats prominence. Ask right after delight, never before it.</p>
+
+  <ol class="steps">
+    <li><b>End-of-game Summary screen — primary ask.</b> They just finished five rounds and (ideally) had fun. A compact "Enjoying LinguaGuessr? It's made by one person — buy me a coffee or ride along on Patreon → Support" strip. This is the warm moment; this is where conversions happen.</li>
+    <li><b>Menu footer — persistent, low-key.</b> A "☕ Support" link next to "How to play / About." Always reachable, never in the way.</li>
+    <li><b>The Support modal — the full pitch.</b> Opens from either of the above. Holds: the one-line pitch, the ☕ Buy-Me-a-Coffee button, the Patreon tier ladder, and the ₿ Bitcoin address with copy-to-clipboard. (Already built in <code>src/support.jsx</code> — pending your sign-off on this strategy.)</li>
+    <li><b>Daily Challenge done state — soft moment.</b> After a streak milestone (e.g. 7-day), a one-time "you've played a week straight — want to keep me going?" nudge. Rate-limit hard; once is charming, every day is a nag.</li>
+  </ol>
+
+  <div class="callout bad">
+    <p><strong>Do not</strong> put a donate button in the top nav next to "Hire&nbsp;us," and <strong>do not</strong> interrupt a round with an ask. Mid-game monetization is the fastest way to make a free game feel cheap.</p>
+  </div>
+</section>
+
+<section id="launch">
+  <span class="num">07</span>
+  <h2>Launch &amp; growth playbook</h2>
+  <p class="lede">A Patreon with 0 patrons and no posts converts nobody. Seed it before you point traffic at it.</p>
+
+  <h4>Before you announce</h4>
+  <ul>
+    <li>Create the Patreon, write the about page (use the §02 micro-story), set up all four tiers, and <strong>publish 2–3 dev-log posts first</strong> so it doesn't look abandoned on day one.</li>
+    <li>Turn on annual billing. Add a goal ("at $X/mo I can spend a full day a week on this").</li>
+    <li>Wire the site (Support modal + Summary strip). Put the real BMC/Patreon/BTC values into <code>src/support.jsx</code>.</li>
+  </ul>
+
+  <h4>The traffic you already have</h4>
+  <ul>
+    <li><strong>Hacker News / Reddit relaunch:</strong> a "Show HN: I added X new languages to LinguaGuessr" type post drives a spike — and the Summary-screen ask catches that spike. The support layer is what monetizes traffic you were getting for free anyway.</li>
+    <li><strong>r/geoguessr, r/languagelearning, r/linguistics, r/webgames</strong> are warm audiences. Lead with the game, not the Patreon.</li>
+    <li><strong>Dev-log cadence is the growth engine:</strong> every "added 5 languages / new Accent Mode" post is a fresh reason to share and a fresh conversion moment.</li>
+  </ul>
+
+  <div class="callout good">
+    <p><strong>The flywheel:</strong> ship something small → post a dev log → share it → traffic spikes → Summary-screen ask converts a few coffees + a patron or two → that funds the next small thing. Keep the loop turning; the absolute numbers compound slowly but the <em>habit</em> is the asset.</p>
+  </div>
+</section>
+
+<section id="numbers">
+  <span class="num">08</span>
+  <h2>Realistic numbers (so you're not disappointed)</h2>
+  <p class="lede">Set expectations honestly. This is a tip jar that grows, not a salary on day one.</p>
+  <ul>
+    <li><strong>Conversion is low and that's normal.</strong> Free-game → paying-supporter runs well under 1% of players for one-time tips, and a fraction of that for recurring. A viral spike of 20k players might yield a few dozen coffees and a handful of patrons.</li>
+    <li><strong>Patreon income is small but compounding.</strong> 10 patrons averaging ~$8 = ~$80/mo. Unglamorous — but it's <em>recurring</em>, it's <em>proof people value the work</em>, and it grows every time you ship + post.</li>
+    <li><strong>The real ROI is optionality + signal.</strong> Even a modest "47 people fund this" number is social proof on the consulting side ("ships products people pay to support"), and the dev-log habit makes you a better, more visible builder.</li>
+    <li><strong>Fees:</strong> Patreon takes ~8–12% all-in; BMC ~5%; Bitcoin ~network fee only. Don't optimize fees at this scale — optimize for the path of least friction for the supporter.</li>
+  </ul>
+</section>
+
+<section id="btc">
+  <span class="num">09</span>
+  <h2>Bitcoin in 3 simple ways</h2>
+  <p class="lede">You asked how to get a wallet + an address you can paste on the site. Here are three, easiest → most secure. For a public tip jar, <strong>Method 2 is the sweet spot.</strong></p>
+
+  <h3>Method 1 — A custodial app (fastest, cash-out friendly) <span class="rec">5 min</span></h3>
+  <p><strong>Cash App</strong> or <strong>Strike</strong> (or Coinbase). Sign up, verify ID once, and the app gives you a Bitcoin receive address instantly. They hold the keys for you and you can sell straight to your bank.</p>
+  <ul>
+    <li><b>Get the address:</b> In Cash App → Bitcoin tab → "Deposit Bitcoin" → copy the address. Strike → Receive → Bitcoin.</li>
+    <li><b>Bonus:</b> Strike also gives you a <strong>Lightning address</strong> (looks like <code>you@strike.me</code>) — perfect for tiny, near-free tips. Post that <em>and</em> the on-chain address.</li>
+    <li><b>Trade-off:</b> requires ID (KYC), and "not your keys" — fine for a tip jar you cash out regularly.</li>
+  </ul>
+
+  <h3>Method 2 — A non-custodial mobile wallet (recommended for a tip jar) <span class="rec">you own it</span></h3>
+  <p>Download a free wallet app — <strong>Muun</strong>, <strong>Blue Wallet</strong>, or <strong>Phoenix</strong> — it generates a wallet on your phone. No ID, no account. <strong>You</strong> control the coins.</p>
+  <ul>
+    <li><b>Get the address:</b> Open the app → "Receive" → copy the Bitcoin address (and it'll also show a Lightning option).</li>
+    <li><b>Critical one-time step:</b> the app shows a <strong>12–24 word recovery phrase</strong>. Write it on paper, store it offline. That phrase <em>is</em> the money — anyone with it can take the funds, and losing it loses the funds. Never type it into a website.</li>
+    <li><b>Why this for a tip jar:</b> no KYC, no middleman, you keep the keys, and it's still a 5-minute setup. Best balance of simple + sovereign.</li>
+  </ul>
+
+  <h3>Method 3 — A hardware wallet (most secure, for when it adds up) <span class="rec">~$70</span></h3>
+  <p>A <strong>Trezor</strong> or <strong>Ledger</strong> device keeps the keys on dedicated offline hardware. Overkill for receiving coffees, but the right home if the jar ever holds real money.</p>
+  <ul>
+    <li><b>Pattern:</b> generate a receive address on the device, post that. You can even keep a "watch-only" copy on your phone to see incoming tips without exposing the keys.</li>
+    <li><b>Trade-off:</b> costs money and is more setup than a tip jar needs on day one. Start with Method 2, graduate to this later.</li>
+  </ul>
+
+  <div class="callout">
+    <p><strong>A privacy note for posting a public address:</strong> Bitcoin is a public ledger. A single static address on your site means anyone can see its total balance and history. For a tip jar that's a fine, accepted trade-off (most do exactly this). If you want a touch more privacy later, a tool like <strong>BTCPay Server</strong> or a wallet's "payment request" feature can generate a fresh address per visitor — but don't let that stop you from launching with one static address now.</p>
+  </div>
+  <div class="callout good">
+    <p><strong>Recommendation:</strong> install <strong>Muun</strong> or <strong>Blue Wallet</strong> (Method 2), back up the seed phrase on paper, copy the receive address, and paste it into <code>SUPPORT.btc</code> in <code>src/support.jsx</code>. Add the Strike Lightning address too if you want frictionless micro-tips. Done.</p>
+  </div>
+</section>
+
+<section id="copy">
+  <span class="num">10</span>
+  <h2>Copy bank — ready to paste</h2>
+  <p class="lede">All written in the indie voice. Drop straight into the site, Patreon, and BMC.</p>
+
+  <div class="copybank">
+    <span class="lbl">Summary-screen strip</span>
+    <p><b>Enjoying LinguaGuessr?</b> It's made by one person. Buy me a coffee or ride along on Patreon. — <span class="mint">Support →</span></p>
+  </div>
+  <div class="copybank">
+    <span class="lbl">Support modal — headline + lede</span>
+    <p><b>Keep me building ☕</b><br>I make small, strange, lovingly-built browser games — LinguaGuessr is one of them. No ads, no trackers, no investors breathing down my neck. Just me, a code editor, and an unreasonable amount of coffee. If this game made your day a little better, you can keep me fueled and chasing the next one.</p>
+  </div>
+  <div class="copybank">
+    <span class="lbl">Buy Me a Coffee — button subtext</span>
+    <p>One-time, no strings. Every cup turns straight into more clips, more languages, more weird little games.</p>
+  </div>
+  <div class="copybank">
+    <span class="lbl">Patreon — page tagline</span>
+    <p>Funding the time to keep making free, hand-built browser games — starting with LinguaGuessr. No ads. No paywalls on the games themselves. Just the future, funded by the people who love the present.</p>
+  </div>
+  <div class="copybank">
+    <span class="lbl">Bitcoin — section line</span>
+    <p>Prefer to send a few sats? Same gratitude, fewer middlemen. ₿ <code>your-address-here</code> (click to copy)</p>
+  </div>
+</section>
+
+<section id="next">
+  <span class="num">11</span>
+  <h2>Do this next — the checklist</h2>
+  <ol class="steps">
+    <li><b>Approve the strategy</b> (or tell me what to change — voice, tiers, prices, placement).</li>
+    <li><b>Create the accounts:</b> Buy Me a Coffee handle + Patreon page with the 4 tiers above. Publish 2–3 dev-log posts before announcing.</li>
+    <li><b>Get a BTC address</b> (Method 2 — Muun/Blue Wallet — recommended). Back up the seed phrase on paper.</li>
+    <li><b>Send me the three values</b> (BMC URL, Patreon URL, BTC address). I drop them into <code>SUPPORT</code> in <code>src/support.jsx</code> — everything else is already wired.</li>
+    <li><b>I ship it:</b> Support modal + Summary strip + menu link, build, deploy to lingua.levelbrook.com, smoke-test.</li>
+    <li><b>Relaunch post</b> (Show HN / Reddit) timed to a new feature, so the spike hits a live support layer.</li>
+  </ol>
+  <div class="callout good">
+    <p><strong>The implementation is already standing by.</strong> <code>src/support.jsx</code> contains the modal, the tier ladder, and the Summary strip — all reading from one <code>SUPPORT</code> object with placeholder values. The moment you hand over real handles + a wallet, it's a one-edit, one-deploy job.</p>
+  </div>
+</section>
+
+</main>
+
+<footer class="wrap">
+  <span class="tag">LinguaGuessr · Patreon &amp; tip-jar strategy · internal memo · not for outward publication</span>
+</footer>
+
+</body>
+</html>

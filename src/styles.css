@@ -579,3 +579,64 @@ body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
 .leaflet-control-zoom a:hover{background:rgba(36,46,60,.98)!important;color:#fff!important}
 .leaflet-control-attribution{background:rgba(10,14,20,.7)!important;color:#7e8a99!important}
 .leaflet-control-attribution a{color:#9fb0c2!important}
+
+/* ===== Support / "buy me a coffee" — indie-maker monetization layer ===== */
+.support-modal{max-width:520px}
+.sup-lede{margin:2px 0 0;color:var(--muted);font-size:15px;line-height:1.6}
+
+/* One-time: Buy Me a Coffee — the high-volume, frictionless tap */
+.sup-coffee{display:flex;align-items:center;gap:14px;margin-top:20px;padding:16px 18px;border-radius:16px;
+  text-decoration:none;color:var(--ink);border:1px solid var(--line2);
+  background:linear-gradient(135deg,rgba(255,194,107,.16),rgba(255,143,80,.10));transition:transform .15s,filter .15s}
+.sup-coffee:hover{transform:translateY(-2px);filter:brightness(1.06)}
+.sup-coffee .sc-emoji{font-size:30px;flex:0 0 auto}
+.sup-coffee .sc-text{display:flex;flex-direction:column;gap:3px;flex:1 1 auto}
+.sup-coffee .sc-text b{font-size:16px}
+.sup-coffee .sc-text small{font-size:13px;color:var(--muted);line-height:1.45}
+.sup-coffee .sc-go{font-size:20px;color:var(--accent2);flex:0 0 auto}
+
+/* Section dividers inside the modal */
+.sup-section-label{margin-top:24px;font-size:12px;letter-spacing:.04em;text-transform:uppercase;
+  color:var(--faint);font-weight:700}
+.sup-sub{margin:6px 0 0;font-size:13.5px;color:var(--muted);line-height:1.5}
+
+/* Recurring: the Patreon tier ladder */
+.sup-tiers{display:flex;flex-direction:column;gap:10px;margin-top:14px}
+.sup-tier{position:relative;display:block;text-decoration:none;color:var(--ink);
+  border:1px solid var(--line);border-radius:14px;padding:14px 16px;background:var(--panel);
+  transition:transform .15s,border-color .15s,background .15s}
+.sup-tier:hover{transform:translateY(-2px);border-color:var(--line2);background:var(--panel2)}
+.sup-tier.featured{border-color:var(--accent);
+  box-shadow:0 0 0 1px rgba(94,242,192,.22),0 16px 44px -28px rgba(94,242,192,.4)}
+.sup-tier .tier-flag{position:absolute;top:-9px;right:14px;font-size:10.5px;letter-spacing:.06em;
+  text-transform:uppercase;font-weight:800;color:#0f1322;background:var(--accent);
+  border-radius:999px;padding:2px 9px}
+.sup-tier .tier-top{display:flex;align-items:baseline;gap:9px}
+.sup-tier .tier-emoji{font-size:20px}
+.sup-tier .tier-name{font-weight:700;font-size:16px}
+.sup-tier .tier-price{margin-left:auto;font-size:18px;font-weight:800;color:var(--accent)}
+.sup-tier .tier-price small{font-size:12px;color:var(--faint);font-weight:600}
+.sup-tier .tier-line{margin:7px 0 0;font-size:13px;color:var(--muted);line-height:1.5}
+.sup-patreon-btn{width:100%;margin-top:14px}
+
+/* Crypto: Bitcoin copy-to-clipboard */
+.sup-btc{display:flex;align-items:center;gap:11px;width:100%;margin-top:12px;padding:13px 15px;
+  border-radius:13px;border:1px dashed var(--line2);background:#0b0f1c;color:var(--ink);
+  cursor:pointer;text-align:left;transition:border-color .15s}
+.sup-btc:hover{border-color:var(--accent2)}
+.sup-btc .btc-mark{font-size:20px;color:var(--warm,#ffc26b);flex:0 0 auto}
+.sup-btc .btc-addr{flex:1 1 auto;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--muted)}
+.sup-btc .btc-copy{flex:0 0 auto;font-size:12px;font-weight:700;color:var(--accent2)}
+.sup-foot{margin-top:18px;text-align:center;font-size:13px}
+
+/* End-of-game Summary strip — the warmest moment to ask */
+.support-strip{display:flex;align-items:center;gap:13px;width:100%;margin-top:18px;padding:14px 16px;
+  border-radius:16px;cursor:pointer;text-align:left;color:var(--ink);
+  border:1px solid var(--line2);background:linear-gradient(135deg,rgba(255,194,107,.14),rgba(124,199,255,.08));
+  transition:transform .15s,filter .15s}
+.support-strip:hover{transform:translateY(-2px);filter:brightness(1.06)}
+.support-strip .ss-emoji{font-size:26px;flex:0 0 auto}
+.support-strip .ss-text{display:flex;flex-direction:column;gap:2px;flex:1 1 auto}
+.support-strip .ss-text b{font-size:15px}
+.support-strip .ss-text small{font-size:12.5px;color:var(--muted);line-height:1.4}
+.support-strip .ss-go{flex:0 0 auto;font-size:13.5px;font-weight:700;color:var(--accent2);white-space:nowrap}
