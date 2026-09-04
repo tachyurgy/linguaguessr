@@ -60,9 +60,11 @@ export default function MapGuess({ round, onPick, guess, answer, revealed, homel
     }
     mapRef.current = map;
     map.zoomControl?.setPosition("topright");
-    L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
-      attribution: "&copy; OpenStreetMap &copy; CARTO", subdomains: "abcd",
-      maxZoom: 12, noWrap: true, keepBuffer: 4,
+    // Esri's dark canvas basemap. CARTO's dark_all used to serve here, but it
+    // now stamps "API KEY REQUIRED" across every tile for keyless callers —
+    // this one is keyless and stays clean.
+    L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}", {
+      attribution: "Tiles &copy; Esri", maxZoom: 12, noWrap: true, keepBuffer: 4,
     }).addTo(map);
     map.on("click", (e) => {
       if (!onPickRef.current) return;

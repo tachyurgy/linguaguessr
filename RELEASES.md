@@ -9,6 +9,24 @@ Deploy command: `npm run build && npx wrangler pages deploy dist --project-name=
 
 ---
 
+## 2026-09-04 — Fix the basemap: CARTO now watermarks keyless tiles
+
+- **What deployed:** lingua.levelbrook.com (deployment `ac4f088b`, Production/branch `main`,
+  bundle `index-D0Khq6Kn.js`) — the map renders cleanly again.
+- **Changed:** swapped the Leaflet tile layer from CARTO `dark_all` to Esri's dark canvas
+  (`server.arcgisonline.com/.../World_Dark_Gray_Base`). CARTO still returns HTTP 200 to keyless
+  callers, but the tile images themselves now carry **"API KEY REQUIRED — carto.com/basemaps/apikey"**
+  watermarked diagonally across every one of them, so the map had been visibly broken with no
+  error and no failing request to give it away. Esri's is keyless and matches the dark UI. Note
+  its path order is `{z}/{y}/{x}`, not Leaflet's usual `{z}/{x}/{y}`.
+- **How:** `npm run build` → `CLOUDFLARE_API_TOKEN=$LEVELBROOK_CF_DEPLOY_TOKEN
+  CLOUDFLARE_ACCOUNT_ID=a67eceeb4b89d2d4171ed209e87c9456 npx wrangler pages deploy dist
+  --project-name=linguaguessr --branch=main --commit-dirty=true`
+- **Verified:** the live bundle contains `arcgisonline` and no longer contains `cartocdn`.
+  Headless Chromium played a real round against lingua.levelbrook.com: audio loads from R2, the
+  map draws with no watermark anywhere, 0 HTTP 4xx/5xx. Screenshot captured and eyeballed — this
+  one had to be checked by eye, since the failure mode produces no error to assert on.
+
 ## 2026-06-05 — Hawaiian (ʻōlelo Hawaiʻi) added — 38 languages, 1,851 clips
 - **What deployed:** lingua.levelbrook.com (deployment `962e6a1b`, Production/branch `main`) — Hawaiian is now a playable language. 37 → **38 languages**, 1,823 → **1,851 clips**.
 - **Changed:**
